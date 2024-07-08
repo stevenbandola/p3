@@ -1,6 +1,6 @@
 import { Physics, vec3 } from '@react-three/rapier'
-import { Environment, KeyboardControls } from '@react-three/drei'
-import { Fragment, useEffect, useState } from 'react'
+import { Environment, KeyboardControls, Preload } from '@react-three/drei'
+import { Fragment, Suspense, useEffect, useState } from 'react'
 import Lights from './Lights'
 import Map from './Map'
 import CharacterModel from './CharacterModel'
@@ -31,7 +31,10 @@ export default function OpenMapExperience({ onReady }) {
   const [mapReady, setMapReady] = useState(false)
   const characters = usePlayersState('character')
 
-  useEffect(() => onReady(mapReady), [mapReady])
+  useEffect(() => {
+    onReady(mapReady)
+    console.log('mapReady', mapReady)
+  }, [mapReady])
 
   return (
     <>
@@ -52,9 +55,11 @@ export default function OpenMapExperience({ onReady }) {
             ) : (
               // remote player
               <Fragment key={`remote-${state.id}`}>
-                <AnimationRemotePlayer animationSet={animationSet} player={player}  key={state.avatarUrl}>
-                  <CharacterModel characterUrl={state.avatarUrl} player={player} />
-                </AnimationRemotePlayer>
+                <Suspense>
+                  <AnimationRemotePlayer animationSet={animationSet} player={player} key={state.avatarUrl}>
+                    <CharacterModel characterUrl={state.avatarUrl} player={player} />
+                  </AnimationRemotePlayer>
+                </Suspense>
               </Fragment>
             )
           )}

@@ -38,6 +38,9 @@ export const VoiceChat = ({ uid }) => {
 
   const startVoiceChat = async () => {
     agoraClient.current = await AgoraManager(handleVSDKEvents)
+    if (!agoraClient.current.config.enabled) {
+      return
+    }
     const result = await agoraClient.current.join(uid, `playroom-rpm-${getRoomCode()}`, channelParameters)
 
     // muted by default

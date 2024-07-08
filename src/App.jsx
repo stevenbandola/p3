@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import Lobby from './Lobby'
 import { AvatarCreator } from '@readyplayerme/react-avatar-creator'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { insertCoin, myPlayer } from 'playroomkit'
 import { generateRandomHexColor, getRandomExpression, getStoreValue } from './utils/helpers'
 import OpenMapExperience from './components/OpenMapExperience'
@@ -12,6 +12,11 @@ export default function App() {
   const [avatarMode, setAvatarMode] = useState(false)
   const [gameLaunched, setGameLaunched] = useState(false)
   const [experienceReady, setExperienceReady] = useState(false)
+
+  useEffect(() => {
+    console.log('avatarMode', avatarMode)
+    console.log('gameLaunched', gameLaunched)
+  }, [avatarMode, gameLaunched])
 
   if (!avatarMode && !gameLaunched) {
     // home page
@@ -35,8 +40,11 @@ export default function App() {
           // join or create the room now.
           insertCoin({
             // skipLobby: true, // skip the lobby UI and join/create the room directly
-            gameId: '1924575cdd284d5c88b3d10d6fd5d774',
+
+            gameId: 'QHPmW6KQm1Q1sSv9mdS5',
+            roomCode: getStoreValue('room_code'),
           }).then(() => {
+            console.log('insertCoin done')
             myPlayer().setState('character', {
               id: myPlayer().id,
               hairColor: generateRandomHexColor(),
@@ -46,6 +54,7 @@ export default function App() {
               avatarUrl: avatarUrl.split('?')[0] + '?' + new Date().getTime() + '&meshLod=2',
               avatarImg: avatarImage,
             })
+            console.log('player', myPlayer().getState('character'))
 
             myPlayer().setState('player_name', getStoreValue('player_name'))
             setAvatarMode(false)
@@ -60,7 +69,7 @@ export default function App() {
       <>
         <Loading show={!experienceReady} />
         <Canvas shadows camera={{ position: [8, 8, 8], fov: 30 }}>
-          <color attach='background' args={['#ececec']} />
+          <color attach='background' args={['#fff']} />
           <OpenMapExperience onReady={setExperienceReady} />
         </Canvas>
         {experienceReady && <UI />}

@@ -17,6 +17,6 @@
     "noUnusedLocals": true,
     "types": ["@react-three/fiber", "@types/node", "vite/client"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/components/CharacterModel.jsx"],
   "exclude": ["node_modules", "build/**/*", "*.png"]
 }

@@ -41,9 +41,13 @@ const Animator = ({ player, actions }) => {
       curAnimation === animationSet.action3 ||
       curAnimation === animationSet.action4
     ) {
+      // console.log('player', player)
+      // console.log('actions', actions)
       action && action.reset().fadeIn(0.23).setLoop(THREE.LoopOnce, undefined).play()
       action && (action.clampWhenFinished = true)
     } else {
+      // console.log('player', player)
+      // console.log('actions', actions)
       action && action.reset().fadeIn(0.23).play()
     }
 

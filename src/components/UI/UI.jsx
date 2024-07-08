@@ -79,7 +79,7 @@ export const UI = () => {
 
         <div className='flex items-end justify-center space-x-0  max-md:mb-40 max-md:flex-col md:w-2/4 max-md:items-start'>
           {/* CHAT */}
-          {!avatarMode && <Chat />}
+          {/* {!avatarMode && <Chat />} */}
         </div>
         <ActionsInstructions />
       </div>
