@@ -5,6 +5,7 @@ import micIconOff from '../../assets/micIconOff.svg'
 import speakerIconOn from '../../assets/speakerIconOn.svg'
 import speakerIconOff from '../../assets/speakerIconOff.svg'
 import { getRoomCode, myPlayer } from 'playroomkit'
+import { useControls } from 'leva'
 
 export const VoiceChat = ({ uid }) => {
   const channelParameters = useRef({}).current
@@ -13,6 +14,7 @@ export const VoiceChat = ({ uid }) => {
   const [micAllowed, setMicAllowed] = useState(false)
   const [micOn, setMicOn] = useState(false)
   const [spkOn, setSpkOn] = useState(false)
+  const { isVoiceChatEnabled } = useControls({ isVoiceChatEnabled: false })
 
   const handleVSDKEvents = (eventName, ...args) => {
     switch (eventName) {
@@ -38,8 +40,8 @@ export const VoiceChat = ({ uid }) => {
 
   const startVoiceChat = async () => {
     agoraClient.current = await AgoraManager(handleVSDKEvents)
-    if (!agoraClient.current.config.enabled) {
-      return
+    if (!agoraClient.current.config.enabled || !isVoiceChatEnabled) {
+      agoraClient.current.leave(channelParameters)
     }
     const result = await agoraClient.current.join(uid, `playroom-rpm-${getRoomCode()}`, channelParameters)
 
@@ -52,12 +54,12 @@ export const VoiceChat = ({ uid }) => {
 
   useEffect(() => {
     // joins the channel at mount
-    startVoiceChat()
+    isVoiceChatEnabled && startVoiceChat()
 
     return () => {
       agoraClient && agoraClient.current.leave(channelParameters)
     }
-  }, [])
+  }, [isVoiceChatEnabled])
 
   const toggleMic = async () => {
     if (!micAllowed) return

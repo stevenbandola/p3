@@ -1,4 +1,4 @@
-import { useJoystickControls } from 'ecctrl'
+// import { useJoystickControls } from 'ecctrl'
 import { Joystick } from 'playroomkit'
 import { useEffect, useRef } from 'react'
 import jumpButtonImage from '../assets/chevron-double-up.svg'
@@ -6,10 +6,10 @@ import sprintButtonImage from '../assets/chevron-double-right.svg'
 import { useFrame } from '@react-three/fiber'
 
 export const PlayroomJoystick = ({ player }) => {
-  const setJoystick = useJoystickControls(state => state.setJoystick)
-  const resetJoystick = useJoystickControls(state => state.resetJoystick)
-  const pressButton1 = useJoystickControls(state => state.pressButton1)
-  const releaseAllButtons = useJoystickControls(state => state.releaseAllButtons)
+  // const setJoystick = useJoystickControls(state => state.setJoystick)
+  // const resetJoystick = useJoystickControls(state => state.resetJoystick)
+  // const pressButton1 = useJoystickControls(state => state.pressButton1)
+  // const releaseAllButtons = useJoystickControls(state => state.releaseAllButtons)
   const joystick = useRef()
 
   useEffect(() => {
@@ -36,20 +36,20 @@ export const PlayroomJoystick = ({ player }) => {
     })
   }, [player])
 
-  useFrame(() => {
-    if (!joystick.current) return
+  // useFrame(() => {
+  //   if (!joystick.current) return
 
-    if (joystick.current.isPressed('jump')) {
-      pressButton1()
-    } else {
-      releaseAllButtons()
-    }
-    if (joystick.current.isJoystickPressed()) {
-      setJoystick(1, joystick.current.angle() - Math.PI / 2, joystick.current.isPressed('sprint'))
-    } else {
-      resetJoystick()
-    }
-  })
+  //   if (joystick.current.isPressed('jump')) {
+  //     pressButton1()
+  //   } else {
+  //     releaseAllButtons()
+  //   }
+  //   if (joystick.current.isJoystickPressed()) {
+  //     setJoystick(1, joystick.current.angle() - Math.PI / 2, joystick.current.isPressed('sprint'))
+  //   } else {
+  //     resetJoystick()
+  //   }
+  // })
 
   return <></>
 }

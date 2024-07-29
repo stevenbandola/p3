@@ -48,7 +48,7 @@ const AgoraManager = async eventsCallback => {
     appId: 'c6b021f58ee3449a9d4f06e713ad5447',
     channelName: 'Lobby',
     token: '',
-    enabled: false,
+    enabled: true,
   }
 
   const join = async (uid, channel, channelParameters = {}) => {

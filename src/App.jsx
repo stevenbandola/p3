@@ -7,6 +7,7 @@ import { generateRandomHexColor, getRandomExpression, getStoreValue } from './ut
 import OpenMapExperience from './components/OpenMapExperience'
 import { UI } from './components/UI/UI'
 import { Loading } from './components/UI/Loading'
+import { XR } from '@react-three/xr'
 
 export default function App() {
   const [avatarMode, setAvatarMode] = useState(false)
@@ -18,26 +19,13 @@ export default function App() {
     console.log('gameLaunched', gameLaunched)
   }, [avatarMode, gameLaunched])
 
-  if (!avatarMode && !gameLaunched) {
+  if (!gameLaunched) {
     // home page
     return (
       <Lobby
         onJoinOrCreateRoom={roomCode => {
           // setRoomCode(roomCode)
           setAvatarMode(true)
-        }}
-      />
-    )
-  } else if (!gameLaunched && avatarMode) {
-    // show avatar creator
-    return (
-      <AvatarCreator
-        subdomain='playroom'
-        className='fixed top-0 left-0 z-10 w-screen h-screen'
-        onAvatarExported={event => {
-          const avatarUrl = event.data.url
-          const avatarImage = `https://models.readyplayer.me/${event.data.avatarId}.png?expression=${getRandomExpression()}&size=512`
-          // join or create the room now.
           insertCoin({
             // skipLobby: true, // skip the lobby UI and join/create the room directly
 
@@ -51,8 +39,8 @@ export default function App() {
               topColor: generateRandomHexColor(),
               bottomColor: generateRandomHexColor(),
               // set the avatar url and add a timestamp to it to avoid caching
-              avatarUrl: avatarUrl.split('?')[0] + '?' + new Date().getTime() + '&meshLod=2',
-              avatarImg: avatarImage,
+              // avatarUrl: avatarUrl.split('?')[0] + '?' + new Date().getTime() + '&meshLod=2',
+              // avatarImg: avatarImage,
             })
             console.log('player', myPlayer().getState('character'))
 
@@ -68,9 +56,11 @@ export default function App() {
     return (
       <>
         <Loading show={!experienceReady} />
-        <Canvas shadows camera={{ position: [8, 8, 8], fov: 30 }}>
-          <color attach='background' args={['#fff']} />
-          <OpenMapExperience onReady={setExperienceReady} />
+        <Canvas shadows camera={{ position: [0, 1.55, 0], fov: 30, rotation: [0, 180, 0] }}>
+          <XR>
+            <color attach='background' args={['#fff']} />
+            <OpenMapExperience onReady={setExperienceReady} />
+          </XR>
         </Canvas>
         {experienceReady && <UI />}
       </>

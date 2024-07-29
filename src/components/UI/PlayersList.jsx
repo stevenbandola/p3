@@ -1,6 +1,10 @@
 import { usePlayersState } from 'playroomkit'
 import soundIcon from '../../assets/soundIcon.svg'
 
+const teleportToFriend = () => {
+  // fire teleport event
+}
+
 export const PlayerList = () => {
   const playersWithMic = usePlayersState('withVoiceChat')
 
@@ -21,6 +25,7 @@ export const PlayerList = () => {
               style={{
                 fontFamily: "''",
               }}
+              onClick={() => teleportToFriend()}
             >
               {playerName}
             </span>

@@ -1,5 +1,5 @@
 import { Physics, vec3 } from '@react-three/rapier'
-import { Environment, KeyboardControls, Preload } from '@react-three/drei'
+import { Environment, KeyboardControls, Preload, PointerLockControls } from '@react-three/drei'
 import { Fragment, Suspense, useEffect, useState } from 'react'
 import Lights from './Lights'
 import Map from './Map'
@@ -10,6 +10,9 @@ import { AnimationRemotePlayer } from './AnimationRemotePlayer'
 import { animationSet } from '../hooks/useRPMAnimations'
 import { PlayroomJoystick } from './PlayroomJoystick'
 import { Player } from './Player'
+import { DesktopFlyController } from './DesktopFlyController'
+import { VideoPlayer } from './VideoPlayer'
+import TerrainGeneration from './TerrainGeneration'
 
 /**
  * Keyboard control preset
@@ -30,10 +33,10 @@ const keyboardMap = [
 export default function OpenMapExperience({ onReady }) {
   const [mapReady, setMapReady] = useState(false)
   const characters = usePlayersState('character')
-
+  // console.log('characters', characters)
   useEffect(() => {
     onReady(mapReady)
-    console.log('mapReady', mapReady)
+    // console.log('mapReady', mapReady)
   }, [mapReady])
 
   return (
@@ -42,28 +45,35 @@ export default function OpenMapExperience({ onReady }) {
 
       <Lights />
 
+      {mapReady && <VideoPlayer />}
+
       <Physics timeStep='vary' debug={false} gravity={vec3({ x: 0, y: mapReady ? -9.8 : 0, z: 0 })}>
         {characters
           .filter(({ state }) => state) // remove nulls
-          .map(({ state, player }) =>
-            player.id === player.myId ? (
+          .map(({ state, player }) => {
+            console.log('state', state)
+            console.log('player', player)
+            return player.id === player.myId ? (
               // controlled player
-              <KeyboardControls map={keyboardMap} key={`local-${state.id}`}>
+              <Fragment key={`local-${state.id}`}>
+                <PointerLockControls />
+                <DesktopFlyController />
                 <Player />
                 <PlayroomJoystick player={player} />
-              </KeyboardControls>
+              </Fragment>
             ) : (
               // remote player
               <Fragment key={`remote-${state.id}`}>
                 <Suspense>
-                  <AnimationRemotePlayer animationSet={animationSet} player={player} key={state.avatarUrl}>
-                    <CharacterModel characterUrl={state.avatarUrl} player={player} />
+                  <AnimationRemotePlayer animationSet={animationSet} player={player} key={player.id}>
+                    <CharacterModel player={player} />
                   </AnimationRemotePlayer>
                 </Suspense>
               </Fragment>
             )
-          )}
+          })}
         <Map onMapReady={() => setMapReady(true)} />
+        <TerrainGeneration />
         <RoughPlane />
       </Physics>
     </>

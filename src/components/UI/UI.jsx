@@ -41,15 +41,16 @@ export const UI = () => {
 
       <div
         className='select-none	fixed inset-4 flex items-end justify-start  max-md:left-0 max-md:inset-1'
-        style={{ backgroundColor: '#f000' }}
+        style={{ backgroundColor: '#f000', fontFamily: 'sans-serif' }}
       >
         {/* READY LOGO AND ROOM CODE */}
         <div className=' cursor-pointer absolute top-0 left-1 text-center'>
           <div className='text-md mt-1 text-base max-md:text-xs'>
             Room: <span style={{ fontFamily: 'sans-serif' }}>{getRoomCode()}</span>
           </div>
-          <div className='text-4xl font-bold'>
-            <img src={imgLogo} alt='Ready Rooms' className='h-20 max-md:h-10' />
+          <div>
+            {/* <img src={imgLogo} alt='Ready Rooms' className='h-20 max-md:h-10' /> */}
+            <span>Ready</span>
           </div>
         </div>
 
@@ -76,7 +77,6 @@ export const UI = () => {
             }}
           />
         </div>
-
         <div className='flex items-end justify-center space-x-0  max-md:mb-40 max-md:flex-col md:w-2/4 max-md:items-start'>
           {/* CHAT */}
           {/* {!avatarMode && <Chat />} */}
