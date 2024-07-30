@@ -6,6 +6,7 @@ import speakerIconOn from '../../assets/speakerIconOn.svg'
 import speakerIconOff from '../../assets/speakerIconOff.svg'
 import { getRoomCode, myPlayer, useMultiplayerState, isHost } from 'playroomkit'
 import { useControls } from 'leva'
+import { Checkbox } from '@mantine/core'
 
 export const VoiceChat = ({ uid }) => {
   const channelParameters = useRef({}).current
@@ -37,7 +38,7 @@ export const VoiceChat = ({ uid }) => {
       remoteTrack && remoteTrack.stop()
     }
   }, [micOn, spkOn, remoteTrack])
-  const [voiceChatState, setVoiceChatState] = useMultiplayerState('voiceChat', { enabled: true })
+  const [voiceChatState, setVoiceChatState] = useMultiplayerState('voiceChat', { enabled: false })
   const startVoiceChat = async (enabled = false) => {
     agoraClient.current = await AgoraManager(handleVSDKEvents)
     if (!agoraClient.current.config.enabled || enabled) {
@@ -86,7 +87,7 @@ export const VoiceChat = ({ uid }) => {
         <img src={spkOn ? speakerIconOn : speakerIconOff} className={`w-10 ${spkOn ? 'opacity-100' : 'opacity-50'}	`} />
       </a>
       <a
-        className='select-none rounded-full h-10 w-10 mr-3 flex justify-center cursor-pointer'
+        className='select-none rounded-full h-10 w-10 mr-10 flex justify-center cursor-pointer'
         onContextMenu={e => {
           e.preventDefault()
           e.stopPropagation()
@@ -104,7 +105,8 @@ export const VoiceChat = ({ uid }) => {
           }}
           onClick={toggleVoiceChatEnabled}
         >
-          {voiceChatState.enabled ? 'Enabled' : 'Disabled'}
+          <Checkbox label='Master' checked={voiceChatState.enabled} onChange={toggleVoiceChatEnabled} />
+          {/* {voiceChatState.enabled ? 'Enabled' : 'Disabled'} */}
           {/* <img src={micOn ? micIconOn : micIconOff} className={`w-10 ${micOn ? 'opacity-100' : 'opacity-50'}	`} /> */}
         </a>
       )}
