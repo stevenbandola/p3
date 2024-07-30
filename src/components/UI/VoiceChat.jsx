@@ -4,7 +4,7 @@ import micIconOn from '../../assets/micIconOn.svg'
 import micIconOff from '../../assets/micIconOff.svg'
 import speakerIconOn from '../../assets/speakerIconOn.svg'
 import speakerIconOff from '../../assets/speakerIconOff.svg'
-import { getRoomCode, myPlayer } from 'playroomkit'
+import { getRoomCode, myPlayer, useMultiplayerState, isHost } from 'playroomkit'
 import { useControls } from 'leva'
 
 export const VoiceChat = ({ uid }) => {
@@ -14,8 +14,8 @@ export const VoiceChat = ({ uid }) => {
   const [micAllowed, setMicAllowed] = useState(false)
   const [micOn, setMicOn] = useState(false)
   const [spkOn, setSpkOn] = useState(false)
-  const { isVoiceChatEnabled } = useControls({ isVoiceChatEnabled: false })
-
+  // const { isVoiceChatEnabled } = useControls({ isVoiceChatEnabled: false })
+  const [player] = useState(myPlayer())
   const handleVSDKEvents = (eventName, ...args) => {
     switch (eventName) {
       case 'user-published':
@@ -26,10 +26,10 @@ export const VoiceChat = ({ uid }) => {
         }
     }
   }
-
+  const isHostPlayer = isHost()
   useEffect(() => {
     channelParameters.localAudioTrack && channelParameters.localAudioTrack.setEnabled(micOn)
-    myPlayer().setState('withVoiceChat', micOn)
+    player.setState('withVoiceChat', micOn)
 
     if (spkOn) {
       remoteTrack && remoteTrack.play()
@@ -37,10 +37,10 @@ export const VoiceChat = ({ uid }) => {
       remoteTrack && remoteTrack.stop()
     }
   }, [micOn, spkOn, remoteTrack])
-
-  const startVoiceChat = async () => {
+  const [voiceChatState, setVoiceChatState] = useMultiplayerState('voiceChat', { enabled: true })
+  const startVoiceChat = async (enabled = false) => {
     agoraClient.current = await AgoraManager(handleVSDKEvents)
-    if (!agoraClient.current.config.enabled || !isVoiceChatEnabled) {
+    if (!agoraClient.current.config.enabled || enabled) {
       agoraClient.current.leave(channelParameters)
     }
     const result = await agoraClient.current.join(uid, `playroom-rpm-${getRoomCode()}`, channelParameters)
@@ -54,12 +54,12 @@ export const VoiceChat = ({ uid }) => {
 
   useEffect(() => {
     // joins the channel at mount
-    isVoiceChatEnabled && startVoiceChat()
+    voiceChatState.enabled && startVoiceChat(true)
 
     return () => {
       agoraClient && agoraClient.current.leave(channelParameters)
     }
-  }, [isVoiceChatEnabled])
+  }, [voiceChatState.enabled])
 
   const toggleMic = async () => {
     if (!micAllowed) return
@@ -68,6 +68,9 @@ export const VoiceChat = ({ uid }) => {
 
   const toggleSpk = async () => {
     setSpkOn(v => !v)
+  }
+  const toggleVoiceChatEnabled = async () => {
+    setVoiceChatState({ enabled: !voiceChatState.enabled })
   }
 
   return (
@@ -92,6 +95,19 @@ export const VoiceChat = ({ uid }) => {
       >
         <img src={micOn ? micIconOn : micIconOff} className={`w-10 ${micOn ? 'opacity-100' : 'opacity-50'}	`} />
       </a>
+      {isHostPlayer && (
+        <a
+          className='select-none rounded-full h-10 w-10 mr-3 flex justify-center cursor-pointer'
+          onContextMenu={e => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+          onClick={toggleVoiceChatEnabled}
+        >
+          {voiceChatState.enabled ? 'Enabled' : 'Disabled'}
+          {/* <img src={micOn ? micIconOn : micIconOff} className={`w-10 ${micOn ? 'opacity-100' : 'opacity-50'}	`} /> */}
+        </a>
+      )}
     </>
   )
 }

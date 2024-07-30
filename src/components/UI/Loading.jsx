@@ -24,10 +24,8 @@ export const Loading = ({ show }) => {
           }}
         >
           <div className='flex flex-col items-center justify-center h-screen bg-gray-100' style={{ opacity: 'inherit' }}>
-            <div className='text-4xl font-bold'>
-              <img src={imgLogo} alt='Ready Rooms' style={{ height: '80px' }} />
-            </div>
-            <div className='text-md mt-1'>LOADING EXPERIENCE</div>
+            <div className='text-4xl font-bold'>Podchurch is loading...</div>
+            <div className='text-md mt-1'>Online Church for Everyone</div>
 
             <div className='lds-ellipsis' style={{ visibility: show ? 'visible' : 'hidden' }}>
               <div></div>

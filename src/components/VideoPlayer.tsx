@@ -1,11 +1,11 @@
 import { taya } from '../utils/helpers'
-import { useAspect } from '@react-three/drei'
+import { Html, useAspect } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useControls } from 'leva'
 import { Suspense, useEffect, useState } from 'react'
 import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from 'three'
 import { useMultiplayerState, isHost, RPC } from 'playroomkit'
-
+import { Button, Flex, MantineProvider, Slider } from '@mantine/core'
+import { theme } from '../lib/mantine/theme'
 /**
  *
  * Maybe split up Video into VideoController and VideoPlayer
@@ -28,15 +28,11 @@ export const VideoPlayer = () => {
 
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [src, setSrc] = useState(taya.videoUrl)
+  const [showControls, setShowControls] = useState(false)
   const onLoadedData = () => {
     setIsVideoLoaded(true)
   }
-  const [{ isPlaying }, setIsPlaying] = useControls(() => ({
-    isPlaying: false,
-  }))
-  const [{ isMuted }, setIsMuted] = useControls(() => ({
-    isMuted: false,
-  }))
+
   const isHostPlayer = isHost()
   const [video] = useState(() => {
     const vid = document.createElement('video')
@@ -49,11 +45,10 @@ export const VideoPlayer = () => {
     vid.onloadeddata = onLoadedData
     vid.setAttribute('style', `opacity: ${isVideoLoaded ? 1 : 0} `)
     vid.currentTime = 0
+
     return vid
   })
   const syncTimeWithHost = async () => {
-    // store time before and after fetching and adjust based on loading time
-    // then only update the playback for the user that requested it
     await RPC.call('getCurrentTime', {}, RPC.Mode.HOST)
   }
   RPC.register('getCurrentTime', () => {
@@ -61,25 +56,10 @@ export const VideoPlayer = () => {
     setVideoState({ status: 'playing', currentTime: video.currentTime })
     const finalTime = new Date().getTime()
     const timeDifference = finalTime - initialTime
-    return new Promise(() => (video.currentTime += timeDifference)) // setVideoState({ status: 'playing', currentTime: newTime })    return
+    return new Promise(() => (video.currentTime += timeDifference))
   })
 
   const [videoState, setVideoState] = useMultiplayerState('videoState', { status: 'paused', currentTime: 0 })
-
-  useEffect(() => {
-    if (isPlaying) {
-      !isHostPlayer && syncTimeWithHost()
-      video.play()
-      isHostPlayer && setVideoState({ status: 'playing', currentTime: video.currentTime })
-    } else {
-      video.pause()
-      isHostPlayer && setVideoState({ status: 'paused', currentTime: video.currentTime })
-    }
-  }, [isPlaying])
-
-  useEffect(() => {
-    video.muted = isMuted
-  }, [isMuted])
 
   useEffect(() => {
     console.log('updating video state', videoState)
@@ -122,13 +102,6 @@ export const VideoPlayer = () => {
   // }
   useEffect(() => {
     video.src = src
-    if (videoState.isPlaying) {
-      setIsPlaying({ isPlaying: true })
-    }
-    if (videoState.isMuted) {
-      setIsMuted({ isMuted: true })
-    }
-    // fetch video state from local storage
 
     if (isHostPlayer) {
       const currentTimeStorage = localStorage.getItem('currentTime')
@@ -138,7 +111,6 @@ export const VideoPlayer = () => {
 
     return () => {
       video.pause()
-
       // set the video state in local storage
       localStorage.setItem('currentTime', video.currentTime.toString())
     }
@@ -151,8 +123,6 @@ export const VideoPlayer = () => {
   // }, [pod.id])
 
   const videoImage = document.createElement('canvas')
-  // videoImage.width = 960
-  // videoImage.height = 540
   videoImage.width = 1280
   videoImage.height = 720
 
@@ -168,8 +138,6 @@ export const VideoPlayer = () => {
   const movieGeometry = new PlaneGeometry(10, 10)
   const movieScreen = new Mesh(movieGeometry, videoMaterial)
 
-  // movieScreen.rotation.set(0, 0, 90)
-  movieScreen.position.set(15, 8, 0)
   movieScreen.rotateY(-Math.PI / 2)
 
   const { camera } = useThree()
@@ -186,8 +154,58 @@ export const VideoPlayer = () => {
   return (
     <>
       <Suspense fallback={<></>}>
-        <primitive object={movieScreen} scale={size}></primitive>
+        <mesh
+          position={[15, 8, 0]}
+          onClick={e => {
+            switch (e.button) {
+              case 0:
+                console.log('left click')
+
+                break
+              case 1:
+                console.log('wheel click')
+
+                break
+              case 2:
+                console.log('right click')
+                showControls ? setShowControls(false) : setShowControls(true)
+
+                break
+            }
+          }}
+        >
+          <primitive object={movieScreen} scale={size}></primitive>
+        </mesh>
+        {showControls && <VideoPlayerControls video={video} closeMenu={() => setShowControls(false)} />}
       </Suspense>
     </>
+  )
+}
+
+const VideoPlayerControls = ({ video, closeMenu }: { video: HTMLVideoElement; closeMenu: () => void }) => {
+  return (
+    <Html position={[15, 3, 0]} scale={4} occlude distanceFactor={5}>
+      <MantineProvider theme={theme}>
+        <Flex gap={5} direction={'column'}>
+          <Button size={'xl'} onClick={() => (video.paused ? video.play() : video.pause())}>
+            Play/Pause
+          </Button>
+          <Slider
+            size={40}
+            min={0}
+            max={video.seekable.end(0)}
+            w={700}
+            defaultValue={video.currentTime}
+            onChange={newValue => (video.currentTime = Number(newValue))}
+          />
+          <Button size='xl' onClick={() => (video.muted = !video.muted)}>
+            {video.muted ? 'Unmute' : 'Mute'}
+          </Button>
+          <Button size='xl' onClick={closeMenu}>
+            Close
+          </Button>
+        </Flex>
+      </MantineProvider>
+    </Html>
   )
 }

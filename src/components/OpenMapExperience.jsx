@@ -1,10 +1,9 @@
 import { Physics, vec3 } from '@react-three/rapier'
-import { Environment, KeyboardControls, Preload, PointerLockControls } from '@react-three/drei'
+import { Environment, PointerLockControls } from '@react-three/drei'
 import { Fragment, Suspense, useEffect, useState } from 'react'
 import Lights from './Lights'
 import Map from './Map'
 import CharacterModel from './CharacterModel'
-import { RoughPlane } from './RoughPlane'
 import { usePlayersState } from 'playroomkit'
 import { AnimationRemotePlayer } from './AnimationRemotePlayer'
 import { animationSet } from '../hooks/useRPMAnimations'
@@ -13,6 +12,7 @@ import { Player } from './Player'
 import { DesktopFlyController } from './DesktopFlyController'
 import { VideoPlayer } from './VideoPlayer'
 import TerrainGeneration from './TerrainGeneration'
+import Cliff from './Cliff'
 
 /**
  * Keyboard control preset
@@ -33,10 +33,9 @@ const keyboardMap = [
 export default function OpenMapExperience({ onReady }) {
   const [mapReady, setMapReady] = useState(false)
   const characters = usePlayersState('character')
-  // console.log('characters', characters)
+
   useEffect(() => {
     onReady(mapReady)
-    // console.log('mapReady', mapReady)
   }, [mapReady])
 
   return (
@@ -74,7 +73,8 @@ export default function OpenMapExperience({ onReady }) {
           })}
         <Map onMapReady={() => setMapReady(true)} />
         <TerrainGeneration />
-        <RoughPlane />
+        <Cliff />
+        {/* <RoughPlane /> */}
       </Physics>
     </>
   )

@@ -2,6 +2,7 @@ import imgLogo from './assets/logo-rr.svg'
 import imgReadyPlayerMe from './assets/bottom-logo.svg'
 import { useState } from 'react'
 import { generateRandomGuestName, getHashValue, getStoreValue, setHashValue, setStoreValue } from './utils/helpers'
+import { Button, Input, Flex } from '@mantine/core'
 
 function Lobby({ onJoinOrCreateRoom }) {
   const [screen, setScreen] = useState(getHashValue('r') ? 'NAME' : 'LOBBY')
@@ -9,10 +10,9 @@ function Lobby({ onJoinOrCreateRoom }) {
 
   return (
     <div className='flex flex-col items-center justify-center h-screen bg-gray-100'>
-      <div className='text-4xl font-bold'>
-        <img src={imgLogo} alt='Ready Rooms' style={{ height: '80px' }} />
-      </div>
-      <div className='text-md mt-1'>OPEN HANGOUT SPACES</div>
+      <div className='text-black text-4xl font-bold'>Podchurch</div>
+      <div className='text-black text-xl f '>Version 3</div>
+
       {screen === 'LOBBY' && (
         <div className='flex mt-20'>
           <button
@@ -41,24 +41,21 @@ function Lobby({ onJoinOrCreateRoom }) {
         </div>
       )}
       {screen === 'NAME' && (
-        <div className='flex mt-20 items-center'>
-          <div className='rounded-3xl h-12 flex gap-4 overflow-hidden py-2 px-6 bg-white '>
-            <Input onChange={setPlayerName} onSubmit={() => {}} value={playerName} />
-          </div>
-          <button
-            className='rounded-lg px-3 py-2 m-3'
-            style={{ backgroundColor: '#A2DCBB' }}
+        <Flex gap='lg' mt={200}>
+          <UsernameInput value={playerName} onChange={setPlayerName} onSubmit={() => onJoinOrCreateRoom()} />
+
+          <Button
             onClick={() => {
               setStoreValue('player_name', playerName)
               onJoinOrCreateRoom()
             }}
           >
             Next
-          </button>
-        </div>
+          </Button>
+        </Flex>
       )}
       <div className='absolute bottom-5 text-xs gap-2 flex items-center'>
-        <img src={imgReadyPlayerMe} alt='Ready Player Me x Playroom' style={{ height: '40px' }} />
+        <Button>Donate</Button>
       </div>
     </div>
   )
@@ -66,12 +63,12 @@ function Lobby({ onJoinOrCreateRoom }) {
 
 export default Lobby
 
-const Input = ({ onSubmit, onChange, value }) => (
+const UsernameInput = ({ onSubmit, onChange, value }) => (
   <>
-    <input
+    <Input
       maxLength={300}
       placeholder='write your name'
-      className='flex-1 min-w-0 rounded-xl bg-transparent focus:outline-none focus:border-none input-box text5 font-bold'
+      // className='flex-1 min-w-0 rounded-xl bg-transparent focus:outline-none focus:border-none input-box text5 font-bold'
       type='text'
       onChange={e => {
         onChange(e.target.value)

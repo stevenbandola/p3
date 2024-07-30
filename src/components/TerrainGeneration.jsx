@@ -41,14 +41,16 @@ const TerrainGeneration = () => {
       const heightOffset = Math.random() * 2 - 1 // Random value between -1 and 1
 
       tiles.push(
-        <mesh key={`tile-${i}-${j}`} position={[i * tileSize - positionOffset, heightOffset, j * tileSize - positionOffset]}>
-          <boxGeometry args={[tileWidth, tileHeight, tileDepth]} />
-          <meshStandardMaterial color='green' map={texture} />
-        </mesh>
+        <RigidBody key={`tile-${i}-${j}`}>
+          <mesh position={[i * tileSize - positionOffset, heightOffset / 10, j * tileSize - positionOffset]}>
+            <boxGeometry args={[tileWidth, tileHeight, tileDepth]} />
+            <meshStandardMaterial color='green' map={texture} />
+          </mesh>
+        </RigidBody>
       )
     }
   }
-  return <RigidBody>{tiles}</RigidBody>
+  return <>{tiles}</>
 }
 
 export default TerrainGeneration

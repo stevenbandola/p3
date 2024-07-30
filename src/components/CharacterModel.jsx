@@ -81,7 +81,7 @@ const PlayerName = ({ name, player }) => {
       <div
         className='select-none text-center flex justify-center'
         style={{
-          fontFamily: "''",
+          fontFamily: 'sans-serif',
           opacity: occluded ? 0 : 1,
           WebkitTextStroke: '0.01rem #fff',
         }}

@@ -7,10 +7,10 @@ export default function Map({ onMapReady }) {
   return (
     <>
       <RigidBody type='fixed' ref={floorRef}>
-        <mesh receiveShadow position={[0, -3.5, 0]}>
-          <cylinderGeometry args={[150, 150, 5, 50]} />
+        <mesh receiveShadow position={[0, -5, 0]}>
+          <cylinderGeometry args={[150, 150, 2, 50]} />
           <shadowMaterial color='#333' transparent opacity={0.5} />
-          <meshStandardMaterial color='lightblue' transparent opacity={0.5} />
+          <meshStandardMaterial color='lightblue' transparent opacity={0} />
         </mesh>
       </RigidBody>
       <GroundSensor callback={onMapReady} />

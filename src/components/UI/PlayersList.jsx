@@ -1,6 +1,6 @@
 import { usePlayersState } from 'playroomkit'
 import soundIcon from '../../assets/soundIcon.svg'
-
+import { Divider, Text } from '@mantine/core'
 const teleportToFriend = () => {
   // fire teleport event
 }
@@ -10,20 +10,22 @@ export const PlayerList = () => {
 
   return (
     <div className='flex flex-col'>
+      <Text>Online Players</Text>
+      <Divider margins='xs' color={'var(--mantine-default-color)'} />
       {playersWithMic.map(({ state: withMic, player: p }) => {
         const playerName = p.getState().player_name
         return (
           <div
-            className='bg-black m-1 h-8 flex items-center w-48 rounded-full max-md:h-5'
+            className='bg-black m-1 h-8 flex items-center rounded-full max-md:h-5'
             key={p.id}
             style={{
               backgroundColor: '#000a',
             }}
           >
             <span
-              className='text-white ml-4 mr-0 overflow-hidden whitespace-no-wrap text-xl text-ellipsis max-md:text-xs w-full'
+              className='text-white ml-4 mr-0 text-lg text-ellipsis max-md:text-xs w-full'
               style={{
-                fontFamily: "''",
+                fontFamily: 'sans-serif',
               }}
               onClick={() => teleportToFriend()}
             >

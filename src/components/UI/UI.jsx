@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react'
 import { AvatarCreator } from '@readyplayerme/react-avatar-creator'
 import { myPlayer, getRoomCode } from 'playroomkit'
-import { Chat } from './Chat'
-import imgLogo from '../../assets/logo-rr.svg'
 import { getRandomExpression } from '../../utils/helpers'
 import { VoiceChat } from './VoiceChat'
 import { PlayerList } from './PlayersList'
 import { ActionsInstructions } from './ActionsInstructions'
+import { Button } from '@mantine/core'
 
 export const UI = () => {
   const [avatarMode, setAvatarMode] = useState(false)
   const [avatarImage, setAvatarImage] = useState('')
+  const [player] = useState(myPlayer())
 
   useEffect(() => {
-    const color = myPlayer().getProfile().color
-
-    const img = myPlayer().getState('character').avatarImg + `&background=${color.r},${color.g},${color.b}`
+    const color = player.getProfile().color
+    const img = player.getState('character').avatarImg + `&background=${color.r},${color.g},${color.b}`
     setAvatarImage(img)
   }, [avatarMode])
 
@@ -40,17 +39,28 @@ export const UI = () => {
       )}
 
       <div
-        className='select-none	fixed inset-4 flex items-end justify-start  max-md:left-0 max-md:inset-1'
+        className='select-none fixed inset-4 flex items-end justify-start  max-md:left-0 max-md:inset-1'
         style={{ backgroundColor: '#f000', fontFamily: 'sans-serif' }}
       >
+        {/* Crosshair */}
+        <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex'>.</div>
+
         {/* READY LOGO AND ROOM CODE */}
-        <div className=' cursor-pointer absolute top-0 left-1 text-center'>
+        <div className='cursor-pointer absolute top-0 left-1 text-center'>
           <div className='text-md mt-1 text-base max-md:text-xs'>
             Room: <span style={{ fontFamily: 'sans-serif' }}>{getRoomCode()}</span>
           </div>
-          <div>
-            {/* <img src={imgLogo} alt='Ready Rooms' className='h-20 max-md:h-10' /> */}
-            <span>Ready</span>
+          <div className='text-md mt-1 text-base max-lg:text-sm'>
+            <span>Podchurch</span>
+          </div>
+          <div className='text-xs mt-1 text-base max-md:text-xs'>
+            <span>Version 3.0</span>
+          </div>
+        </div>
+        <div className='cursor-pointer absolute bottom-0 left-1 text-center'>
+          <div className='text-md mt-1 text-base max-md:text-xs'>
+            <Button>Donate</Button>
+            {/* Donate: <span style={{ fontFamily: 'sans-serif' }}></span> */}
           </div>
         </div>
 
@@ -64,7 +74,7 @@ export const UI = () => {
           <VoiceChat uid={myPlayer().id} />
 
           {/* AVATAR */}
-          <button
+          {/* <button
             className='w-10 h-10 p-4 rounded-full bg-slate-500 text-white  drop-shadow-md cursor-pointer hover:bg-slate-800 transition-colors'
             onClick={() => {
               setAvatarMode(true)
@@ -75,7 +85,7 @@ export const UI = () => {
               backgroundSize: '200%',
               backgroundPositionX: '50%',
             }}
-          />
+          /> */}
         </div>
         <div className='flex items-end justify-center space-x-0  max-md:mb-40 max-md:flex-col md:w-2/4 max-md:items-start'>
           {/* CHAT */}
