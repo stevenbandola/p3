@@ -40,9 +40,9 @@ export const VoiceChat = ({ uid }) => {
   }, [micOn, spkOn, remoteTrack])
   const [voiceChatState, setVoiceChatState] = useMultiplayerState('voiceChat', { enabled: false })
   const startVoiceChat = async (enabled = false) => {
-    agoraClient.current = await AgoraManager(handleVSDKEvents)
-    if (!agoraClient.current.config.enabled || enabled) {
-      agoraClient.current.leave(channelParameters)
+    agoraClient.current = agoraClient.current ?? (await AgoraManager(handleVSDKEvents))
+    if (!agoraClient.current.config.enabled && !enabled) {
+      agoraClient.current && agoraClient.current.leave(channelParameters)
     }
     const result = await agoraClient.current.join(uid, `playroom-rpm-${getRoomCode()}`, channelParameters)
 
@@ -58,7 +58,7 @@ export const VoiceChat = ({ uid }) => {
     voiceChatState.enabled && startVoiceChat(true)
 
     return () => {
-      agoraClient && agoraClient.current.leave(channelParameters)
+      agoraClient.current && agoraClient.current.leave(channelParameters)
     }
   }, [voiceChatState.enabled])
 
