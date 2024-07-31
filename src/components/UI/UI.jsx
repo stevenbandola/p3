@@ -59,7 +59,11 @@ export const UI = () => {
         </div>
         <div className='cursor-pointer absolute bottom-0 left-1 text-center'>
           <div className='text-md mt-1 text-base max-md:text-xs'>
-            <Button>Donate</Button>
+            <Button onClick={() => window.location.assign('https://opencollective.com/podchurch/donate')}>Donate</Button>
+            {/* <a href="https://opencollective.com/webpack/donate" target="_blank">
+  <img src="https://opencollective.com/webpack/donate/button@2x.png?color=blue" width=300 />
+</a> */}
+            {/* <Button>Donate</Button> */}
             {/* Donate: <span style={{ fontFamily: 'sans-serif' }}></span> */}
           </div>
         </div>

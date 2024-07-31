@@ -1,4 +1,4 @@
-import { taya } from '../utils/helpers'
+import { VIDEO_PLAYLIST } from '../utils/helpers'
 import { Html, useAspect } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Suspense, useEffect, useState } from 'react'
@@ -27,11 +27,12 @@ export const VideoPlayer = () => {
   const size = useAspect(128, 72)
 
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
-  const [src, setSrc] = useState(taya.videoUrl)
+  const [sources, setSrc] = useState(VIDEO_PLAYLIST)
   const [showControls, setShowControls] = useState(false)
   const onLoadedData = () => {
     setIsVideoLoaded(true)
   }
+  const [currentSongIndex, setCurrentSongIndex] = useState(0)
 
   const isHostPlayer = isHost()
   const [video] = useState(() => {
@@ -48,6 +49,23 @@ export const VideoPlayer = () => {
 
     return vid
   })
+
+  const nextSong = () => {
+    setIsVideoLoaded(false)
+    console.log('next song')
+    const newIndex = currentSongIndex + 1 >= sources.length ? 0 : currentSongIndex + 1
+    setCurrentSongIndex(newIndex)
+    video.currentTime = 0
+    console.log('current song index', currentSongIndex)
+    console.log('video src', sources[newIndex].videoUrl)
+    video.src = sources[newIndex].videoUrl
+    video.height = sources[newIndex].resolution.height
+    video.width = sources[newIndex].resolution.width
+    setVideoState({ status: 'playing', currentTime: 0, currentSongIndex: newIndex })
+    setIsVideoLoaded(true)
+    video.play()
+  }
+
   const syncTimeWithHost = async () => {
     await RPC.call('getCurrentTime', {}, RPC.Mode.HOST)
   }
@@ -59,11 +77,12 @@ export const VideoPlayer = () => {
     return new Promise(() => (video.currentTime += timeDifference))
   })
 
-  const [videoState, setVideoState] = useMultiplayerState('videoState', { status: 'paused', currentTime: 0 })
+  const [videoState, setVideoState] = useMultiplayerState('videoState', { status: 'paused', currentTime: 0, currentSongIndex: 0 })
 
   useEffect(() => {
     console.log('updating video state', videoState)
     video.currentTime = videoState.currentTime
+
     if (videoState.status === 'playing') {
       video.play()
     } else {
@@ -101,7 +120,7 @@ export const VideoPlayer = () => {
   //   return
   // }
   useEffect(() => {
-    video.src = src
+    video.src = sources[currentSongIndex].videoUrl
 
     if (isHostPlayer) {
       const currentTimeStorage = localStorage.getItem('currentTime')
@@ -111,6 +130,7 @@ export const VideoPlayer = () => {
 
     return () => {
       video.pause()
+
       // set the video state in local storage
       localStorage.setItem('currentTime', video.currentTime.toString())
     }
@@ -176,13 +196,30 @@ export const VideoPlayer = () => {
         >
           <primitive object={movieScreen} scale={size}></primitive>
         </mesh>
-        {showControls && <VideoPlayerControls video={video} closeMenu={() => setShowControls(false)} />}
+        {showControls && (
+          <VideoPlayerControls
+            video={video}
+            closeMenu={() => setShowControls(false)}
+            nextSong={nextSong}
+            max={video.seekable.length > 0 ? video.seekable.end(0) : 100}
+          />
+        )}
       </Suspense>
     </>
   )
 }
 
-const VideoPlayerControls = ({ video, closeMenu }: { video: HTMLVideoElement; closeMenu: () => void }) => {
+const VideoPlayerControls = ({
+  video,
+  max,
+  closeMenu,
+  nextSong,
+}: {
+  video: HTMLVideoElement
+  max: number
+  closeMenu: () => void
+  nextSong: () => void
+}) => {
   return (
     <Html position={[15, 3, 0]} scale={4} occlude distanceFactor={5}>
       <MantineProvider theme={theme}>
@@ -193,7 +230,7 @@ const VideoPlayerControls = ({ video, closeMenu }: { video: HTMLVideoElement; cl
           <Slider
             size={40}
             min={0}
-            max={video.seekable.end(0)}
+            max={max}
             w={700}
             defaultValue={video.currentTime}
             onChange={newValue => (video.currentTime = Number(newValue))}
@@ -201,6 +238,11 @@ const VideoPlayerControls = ({ video, closeMenu }: { video: HTMLVideoElement; cl
           <Button size='xl' onClick={() => (video.muted = !video.muted)}>
             {video.muted ? 'Unmute' : 'Mute'}
           </Button>
+
+          <Button size='xl' onClick={nextSong}>
+            Next
+          </Button>
+
           <Button size='xl' onClick={closeMenu}>
             Close
           </Button>
