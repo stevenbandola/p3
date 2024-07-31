@@ -23,12 +23,11 @@ export const getHashValue = name => {
 }
 
 export const setHashValue = (name, value) => {
-  const url = new URL(window.location.href)
-  const params = new URLSearchParams(url.hash.replace('#', ''))
-  value.trim() === '' ? params.delete(name) : params.set(name, encodeURIComponent(value))
-
-  url.hash = '#' + params.toString()
-  window.location.href = url
+  // const url = new URL(window.location.href)
+  // const params = new URLSearchParams(url.hash.replace('#', ''))
+  // value.trim() === '' ? params.delete(name) : params.set(name, encodeURIComponent(value))
+  // url.hash = '#' + params.toString()
+  // window.location.href = url
 }
 
 export const setStoreValue = (key, value) => window.localStorage.setItem(key, value)

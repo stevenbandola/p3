@@ -16,46 +16,54 @@ export default function App() {
   const [avatarMode, setAvatarMode] = useState(false)
   const [gameLaunched, setGameLaunched] = useState(false)
   const [experienceReady, setExperienceReady] = useState(false)
+  const [coinInserted, setCoinInserted] = useState(false)
 
   useEffect(() => {
-    console.log('avatarMode', avatarMode)
-    console.log('gameLaunched', gameLaunched)
+    // console.log('avatarMode', avatarMode)
+    // console.log('gameLaunched', gameLaunched)
   }, [avatarMode, gameLaunched])
 
-  // useEffect(() => {
+  useEffect(() => {
+    return () => {
+      setExperienceReady(true)
+      setGameLaunched(true)
+      setAvatarMode(false)
+    }
+  }, [])
+
+  const onJoinRoom = () => {
+    // setRoomCode(roomCode)
+    setAvatarMode(true)
+    insertCoin({
+      skipLobby: true, // skip the lobby UI and join/create the room directly
+      gameId: 'QHPmW6KQm1Q1sSv9mdS5',
+      roomCode: 'POD1',
+    }).then(() => {
+      // console.log('insertCoin done')
+      myPlayer().setState('character', {
+        id: myPlayer().id,
+        hairColor: generateRandomHexColor(),
+        topColor: generateRandomHexColor(),
+        bottomColor: generateRandomHexColor(),
+        // set the avatar url and add a timestamp to it to avoid caching
+        // avatarUrl: avatarUrl.split('?')[0] + '?' + new Date().getTime() + '&meshLod=2',
+        // avatarImg: avatarImage,
+      })
+      // console.log('player', myPlayer().getState('character'))
+
+      myPlayer().setState('player_name', getStoreValue('player_name'))
+      setAvatarMode(false)
+      setGameLaunched(true)
+      setCoinInserted(true)
+    })
+  }
 
   if (!gameLaunched) {
     // home page
 
     return (
       <MantineProvider theme={theme}>
-        <Lobby
-          onJoinOrCreateRoom={() => {
-            // setRoomCode(roomCode)
-            setAvatarMode(true)
-            insertCoin({
-              // skipLobby: true, // skip the lobby UI and join/create the room directly
-              gameId: 'QHPmW6KQm1Q1sSv9mdS5',
-              roomCode: getStoreValue('room_code') ?? undefined,
-            }).then(() => {
-              console.log('insertCoin done')
-              myPlayer().setState('character', {
-                id: myPlayer().id,
-                hairColor: generateRandomHexColor(),
-                topColor: generateRandomHexColor(),
-                bottomColor: generateRandomHexColor(),
-                // set the avatar url and add a timestamp to it to avoid caching
-                // avatarUrl: avatarUrl.split('?')[0] + '?' + new Date().getTime() + '&meshLod=2',
-                // avatarImg: avatarImage,
-              })
-              console.log('player', myPlayer().getState('character'))
-
-              myPlayer().setState('player_name', getStoreValue('player_name'))
-              setAvatarMode(false)
-              setGameLaunched(true)
-            })
-          }}
-        />
+        <Lobby onJoinOrCreateRoom={onJoinRoom} />
       </MantineProvider>
     )
   } else {

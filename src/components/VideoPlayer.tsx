@@ -7,6 +7,7 @@ import { useMultiplayerState, isHost, RPC, usePlayerState, myPlayer } from 'play
 import { Button, Drawer, Flex, MantineProvider, Slider } from '@mantine/core'
 import { theme } from '../lib/mantine/theme'
 import { useMenuContext } from '../MenuProvider'
+import { useXR } from '@react-three/xr'
 
 /**
  *
@@ -26,13 +27,14 @@ import { useMenuContext } from '../MenuProvider'
  *
  */
 export const VideoPlayer = () => {
-  const size = useAspect(128, 72)
+  const size = useAspect(128, 72, 1)
 
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
+  const [listenersRegistered, setListenersRegistered] = useState(false)
   const [sources, setSources] = useState(VIDEO_PLAYLIST)
   const [showControls, setShowControls] = useState(false)
   const [videoState, setVideoState] = useMultiplayerState('videoState', { status: 'paused', currentTime: 0, currentSongIndex: 0 })
-  // const [player] = useState(myPlayer())
+  const { camera } = useThree()
   // const [playerState, setPlayerState] = usePlayerState(player, 'menu', { opened: false })
   const { open: openMenu, close: closeMenu, setMenuContent } = useMenuContext()
   const onLoadedData = () => {
@@ -58,7 +60,7 @@ export const VideoPlayer = () => {
 
   useEffect(() => {
     video.src = sources[currentSongIndex].videoUrl
-    console.log(localStorage.getItem('muted'))
+    // console.log(localStorage.getItem('muted'))
     video.muted = localStorage.getItem('muted') === 'true'
     if (isHostPlayer) {
       const currentTimeStorage = localStorage.getItem('currentTime')
@@ -70,17 +72,34 @@ export const VideoPlayer = () => {
     video.currentTime = videoState.currentTime
 
     syncTimeWithHost()
-    if (videoState.status === 'playing') {
-      video.play()
-    } else {
-      video.pause()
+    // if (videoState.status === 'playing') {
+    //   video.play()
+    // } else {
+    //   video.pause()
+    // }
+    // const handleResize = () => {
+    //   camera.updateProjectionMatrix()
+    // }
+
+    if (!listenersRegistered) {
+      RPC.register('getCurrentTime', () => {
+        setVideoState({ ...videoState, currentTime: video.currentTime })
+        return new Promise(() => video.currentTime)
+      })
+      setListenersRegistered(true)
     }
+    // window.addEventListener('resize', handleResize)
+
+    // Cleanup the event listener on component unmount
+    // return () => {}
 
     return () => {
-      video.pause()
+      video.play()
       localStorage.setItem('muted', video.muted.toString())
+
       if (isHostPlayer) {
         setVideoState({ ...videoState, status: 'playing', currentTime: video.currentTime })
+        // window.removeEventListener('resize', handleResize)
         // set the video state in local storage
         localStorage.setItem('currentTime', video.currentTime.toString())
       }
@@ -113,13 +132,8 @@ export const VideoPlayer = () => {
     // setVideoState({ ...videoState, currentTime: newTime })
   }
 
-  RPC.register('getCurrentTime', () => {
-    setVideoState({ ...videoState, currentTime: video.currentTime })
-    return new Promise(() => video.currentTime)
-  })
-
   useEffect(() => {
-    // console.log('updating video state', videoState)
+    console.log('updating video state', videoState)
     if (sources[videoState.currentSongIndex] && sources[videoState.currentSongIndex].videoUrl !== video.src) {
       video.src = sources[videoState.currentSongIndex].videoUrl
     }
@@ -221,10 +235,9 @@ export const VideoPlayer = () => {
 
   movieScreen.rotateY(-Math.PI / 2)
 
-  const { camera } = useThree()
-
   useFrame(({ gl, scene }) => {
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      // console.log(size)
       videoImageContext.drawImage(video, 0, 0)
       if (videoTexture) videoTexture.needsUpdate = true
     }
@@ -236,7 +249,7 @@ export const VideoPlayer = () => {
     <>
       <Suspense fallback={<></>}>
         <mesh position={[15, 8, 0]} onClick={onClick}>
-          <primitive object={movieScreen} scale={size}></primitive>
+          <primitive object={movieScreen} scale={[1.4766977716204095, 0.8306424965364804, 1]}></primitive>
         </mesh>
       </Suspense>
     </>

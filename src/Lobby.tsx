@@ -3,7 +3,7 @@ import { generateRandomGuestName, getHashValue, getStoreValue, setHashValue, set
 import { Button, Input, Flex } from '@mantine/core'
 
 function Lobby({ onJoinOrCreateRoom }: { onJoinOrCreateRoom: () => void }) {
-  const [screen, setScreen] = useState(getHashValue('r') ? 'NAME' : 'LOBBY')
+  // const [screen, setScreen] = useState(getHashValue('r') ? 'NAME' : 'LOBBY')
   const [playerName, setPlayerName] = useState(getStoreValue('player_name') || generateRandomGuestName()) // NEW / JOIN
 
   return (
@@ -11,9 +11,8 @@ function Lobby({ onJoinOrCreateRoom }: { onJoinOrCreateRoom: () => void }) {
       <div className='text-black text-4xl font-bold'>Podchurch</div>
       <div className='text-black text-xl f '>Version 3</div>
 
-      {screen === 'LOBBY' && (
-        <div className='flex mt-20'>
-          <button
+      <div className='flex mt-20'>
+        {/* <button
             className='rounded-lg px-3 py-2 m-3'
             style={{ backgroundColor: '#A2DCBB' }}
             onClick={() => {
@@ -22,36 +21,19 @@ function Lobby({ onJoinOrCreateRoom }: { onJoinOrCreateRoom: () => void }) {
             }}
           >
             New room
-          </button>
-          <button
-            className='rounded-lg px-3 py-2 m-3'
-            style={{ backgroundColor: '#ccc' }}
-            onClick={() => {
-              const roomCode = prompt('Enter room code')
-              if (roomCode) {
-                setHashValue('r', 'R' + roomCode)
-              }
-              setScreen('NAME')
-            }}
-          >
-            Join room
-          </button>
-        </div>
-      )}
-      {screen === 'NAME' && (
-        <Flex gap='lg' mt={200}>
-          <UsernameInput value={playerName} onChange={setPlayerName} onSubmit={() => onJoinOrCreateRoom()} />
+          </button> */}
+        <UsernameInput value={playerName} onChange={setPlayerName} onSubmit={() => onJoinOrCreateRoom()} />
 
-          <Button
-            onClick={() => {
-              setStoreValue('player_name', playerName)
-              onJoinOrCreateRoom()
-            }}
-          >
-            Next
-          </Button>
-        </Flex>
-      )}
+        <Button
+          onClick={() => {
+            setStoreValue('player_name', playerName)
+            onJoinOrCreateRoom()
+          }}
+        >
+          Next
+        </Button>
+      </div>
+
       <div className='absolute bottom-5 text-xs gap-2 flex items-center'>
         <Button>Donate</Button>
       </div>
