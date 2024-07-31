@@ -1,10 +1,8 @@
-import imgLogo from './assets/logo-rr.svg'
-import imgReadyPlayerMe from './assets/bottom-logo.svg'
 import { useState } from 'react'
 import { generateRandomGuestName, getHashValue, getStoreValue, setHashValue, setStoreValue } from './utils/helpers'
 import { Button, Input, Flex } from '@mantine/core'
 
-function Lobby({ onJoinOrCreateRoom }) {
+function Lobby({ onJoinOrCreateRoom }: { onJoinOrCreateRoom: () => void }) {
   const [screen, setScreen] = useState(getHashValue('r') ? 'NAME' : 'LOBBY')
   const [playerName, setPlayerName] = useState(getStoreValue('player_name') || generateRandomGuestName()) // NEW / JOIN
 
@@ -63,7 +61,13 @@ function Lobby({ onJoinOrCreateRoom }) {
 
 export default Lobby
 
-const UsernameInput = ({ onSubmit, onChange, value }) => (
+type UsernameInputProps = {
+  value: string
+  onChange: (value: string) => void
+  onSubmit: () => void
+}
+
+const UsernameInput = ({ onSubmit, onChange, value }: UsernameInputProps) => (
   <>
     <Input
       maxLength={300}
@@ -76,7 +80,7 @@ const UsernameInput = ({ onSubmit, onChange, value }) => (
       onKeyDown={e => {
         e.stopPropagation() // avoids moving character while typing
         e.code === 'Enter' && onSubmit()
-        e.code === 'Escape' && e.target.blur()
+        // e.code === 'Escape' && e.target.blur()
       }}
       value={value}
     />

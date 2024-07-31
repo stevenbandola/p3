@@ -1,6 +1,10 @@
 import { useAnimations, useGLTF } from '@react-three/drei'
+import { MutableRefObject } from 'react'
+import { Object3D, Object3DEventMap } from 'three'
 
-export const useRPMAnimations = targetRef => {
+export const useRPMAnimations = (
+  targetRef: Object3D<Object3DEventMap> | MutableRefObject<Object3D<Object3DEventMap> | null | undefined> | undefined
+) => {
   const { animations: walkAnimation } = useGLTF('/animations/M_Walk_001.glb')
   const { animations: danceAnimation } = useGLTF('/animations/M_Dances_001.glb')
   const { animations: danceAltAnimation } = useGLTF('/animations/M_Dances_005.glb')
