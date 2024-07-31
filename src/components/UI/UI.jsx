@@ -1,16 +1,27 @@
 import { useEffect, useState } from 'react'
 import { AvatarCreator } from '@readyplayerme/react-avatar-creator'
-import { myPlayer, getRoomCode } from 'playroomkit'
+import { myPlayer, getRoomCode, usePlayerState } from 'playroomkit'
 import { getRandomExpression } from '../../utils/helpers'
 import { VoiceChat } from './VoiceChat'
 import { PlayerList } from './PlayersList'
 import { ActionsInstructions } from './ActionsInstructions'
-import { Button } from '@mantine/core'
-
+import { Button, Drawer } from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks'
+import { on, emit } from '../../utils/events'
 export const UI = () => {
   const [avatarMode, setAvatarMode] = useState(false)
   const [avatarImage, setAvatarImage] = useState('')
   const [player] = useState(myPlayer())
+  // const [playerState, setPlayerState] = usePlayerState(player, 'menu', { opened: false })
+
+  // useEffect(() => {
+  //   console.log('player.menu', menu)
+  //   if (menu.opened) {
+  //     open()
+  //   } else {
+  //     close()
+  //   }
+  // }, [player])
 
   useEffect(() => {
     const color = player.getProfile().color
@@ -39,7 +50,7 @@ export const UI = () => {
       )}
 
       <div
-        className='select-none fixed inset-4 flex items-end justify-start  max-md:left-0 max-md:inset-1'
+        className='select-none fixed inset-4 flex items-end justify-start max-md:left-0 max-md:inset-1'
         style={{ backgroundColor: '#f000', fontFamily: 'sans-serif' }}
       >
         {/* Crosshair */}

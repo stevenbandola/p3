@@ -10,6 +10,7 @@ import { Loading } from './components/UI/Loading'
 import { XR } from '@react-three/xr'
 import { MantineProvider } from '@mantine/core'
 import { theme } from './lib/mantine/theme'
+import { MenuProvider } from './MenuProvider'
 
 export default function App() {
   const [avatarMode, setAvatarMode] = useState(false)
@@ -21,8 +22,11 @@ export default function App() {
     console.log('gameLaunched', gameLaunched)
   }, [avatarMode, gameLaunched])
 
+  // useEffect(() => {
+
   if (!gameLaunched) {
     // home page
+
     return (
       <MantineProvider theme={theme}>
         <Lobby
@@ -58,14 +62,16 @@ export default function App() {
     // show the game
     return (
       <MantineProvider theme={theme}>
-        <Loading show={!experienceReady} />
-        <Canvas shadows camera={{ position: [0, 1.55, 0], fov: 30, rotation: [0, 180, 0] }}>
-          <XR>
-            <color attach='background' args={['#fff']} />
-            <OpenMapExperience onReady={setExperienceReady} />
-          </XR>
-        </Canvas>
-        {experienceReady && <UI />}
+        <MenuProvider>
+          <Loading show={!experienceReady} />
+          <Canvas shadows camera={{ position: [0, 1.55, 0], fov: 30, rotation: [0, 180, 0] }}>
+            <XR>
+              <color attach='background' args={['#fff']} />
+              <OpenMapExperience onReady={setExperienceReady} />
+            </XR>
+          </Canvas>
+          {experienceReady && <UI />}
+        </MenuProvider>
       </MantineProvider>
     )
   }
