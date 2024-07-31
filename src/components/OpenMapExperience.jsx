@@ -50,8 +50,6 @@ export default function OpenMapExperience({ onReady }) {
         {characters
           .filter(({ state }) => state) // remove nulls
           .map(({ state, player }) => {
-            console.log('state', state)
-            console.log('player', player)
             return player.id === player.myId ? (
               // controlled player
               <Fragment key={`local-${state.id}`}>

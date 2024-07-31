@@ -39,7 +39,7 @@ export const randomRange = (min, max) => Math.random() * (max - min) + min
 export const VIDEO_PLAYLIST = [
   {
     videoUrl:
-      'https://cdn-cf-east.streamable.com/video/mp4/sy7jxp.mp4?Expires=1722711639461&Key-Pair-Id=APKAIEYUVEN4EVB2OKEQ&Signature=NuOXtPGOUmScNHFmQhiddRv8FIHynfaQpZfK~QAwDio0H3adeANFxhUyY1BdInnFbG6VPOKGdZL6j5wbHpJ1HmJVOfeHaxVPM1YoxtJeGvjD~rwzVC7arAG7Sd551IlbDmnyYHBNuSMZ84MOW6iVxqbzk0fnx4AIPNezn97HPdp~Fi~U1FI1YLWK-D02yvMFQuFEznGw1OdUi53M1LNh5xc1k3PAyV4KPvD1-Cnqdh~iTRvkcbZ9c788Nhcs2ptaCdNWio37cvw9jJJs-MJEr7sQM4dNKougEEuckG0hp2F98hrNhiNCOfiX-jl6YjD5mbQZP9-TucyEfzVt6sjqNg__',
+      'https://cdn-cf-east.streamable.com/video/mp4/2ly4wy.mp4?Expires=1722718688505&Key-Pair-Id=APKAIEYUVEN4EVB2OKEQ&Signature=PzsMhjb7wRhl20jZh4unHKeq8rCooiLOUQO4xZciNBCV0e3nm5QDFaBlJd5ocfp8i1Pc-1TxA0Crce7vSxRDXBbEyPfi89OMApI5EvPdfsSpjb6cRYt0a7DXOxhMjgxTw5z6S8pfEdylT4DE231zZgBJtROMJnlSeMSFwQRpXJj8qQDhc03HRE3vXYNXVPWLZ~oKTbp7nH~X9qzs0Rd-XhMHGW3N9ePXGDdsk1oZ432su0AHlXWKQCHgqwvAbgNnot-EkJTu6KmplRZnXuB8BlkwaZ3mK421nxz6zCHp4tzkmFdZMV1wBHABa3sle6jL-Q-0679Md0UHYVqEHcak5w__',
     resolution: { width: 720, height: 1280 },
   },
   {

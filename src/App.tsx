@@ -34,7 +34,7 @@ export default function App() {
             // setRoomCode(roomCode)
             setAvatarMode(true)
             insertCoin({
-              skipLobby: true, // skip the lobby UI and join/create the room directly
+              // skipLobby: true, // skip the lobby UI and join/create the room directly
               gameId: 'QHPmW6KQm1Q1sSv9mdS5',
               roomCode: getStoreValue('room_code') ?? undefined,
             }).then(() => {
