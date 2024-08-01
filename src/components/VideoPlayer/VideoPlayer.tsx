@@ -1,13 +1,14 @@
-import { VIDEO_PLAYLIST } from '../utils/helpers'
+import { VIDEO_PLAYLIST } from '../../utils/helpers'
 import { Html, PointerLockControls, PointerLockControlsProps, useAspect } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import { MutableRefObject, Suspense, useEffect, useState } from 'react'
 import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from 'three'
 import { useMultiplayerState, isHost, RPC, usePlayerState, myPlayer } from 'playroomkit'
 import { Button, Drawer, Flex, MantineProvider, Slider } from '@mantine/core'
-import { theme } from '../lib/mantine/theme'
-import { useMenuContext } from '../lib/context/MenuContext'
+import { theme } from '../../lib/mantine/theme'
+import { useMenuContext } from '../../lib/context/MenuContext'
 import { useXR } from '@react-three/xr'
+import { IStreamableVideo } from './types'
 
 /**
  *
@@ -55,12 +56,25 @@ export const VideoPlayer = () => {
     vid.onloadeddata = onLoadedData
     vid.setAttribute('style', `opacity: ${isVideoLoaded ? 1 : 0} `)
     vid.currentTime = 0
-
     return vid
   })
-
+  if (!listenersRegistered) {
+    RPC.register('getCurrentTime', () => {
+      setVideoState({ ...videoState, currentTime: video.currentTime })
+      return new Promise(() => video.currentTime)
+    })
+    setListenersRegistered(true)
+  }
+  const fetchVideo = async (shortcode: string) => {
+    const response = await fetch(`https://api.streamable.com/videos/${shortcode}`)
+    const data: IStreamableVideo = await response.json()
+    console.log(data)
+    // setSources(data)
+  }
   useEffect(() => {
+    // video.src = sources[currentSongIndex].videoUrl
     video.src = sources[currentSongIndex].videoUrl
+    video.src = String(localStorage.getItem('src')) || sources[currentSongIndex].videoUrl
     // console.log(localStorage.getItem('muted'))
     video.muted = localStorage.getItem('muted') === 'true'
     if (isHostPlayer) {
@@ -82,13 +96,6 @@ export const VideoPlayer = () => {
     //   camera.updateProjectionMatrix()
     // }
 
-    if (!listenersRegistered) {
-      RPC.register('getCurrentTime', () => {
-        setVideoState({ ...videoState, currentTime: video.currentTime })
-        return new Promise(() => video.currentTime)
-      })
-      setListenersRegistered(true)
-    }
     // window.addEventListener('resize', handleResize)
 
     // Cleanup the event listener on component unmount
@@ -103,6 +110,7 @@ export const VideoPlayer = () => {
         // window.removeEventListener('resize', handleResize)
         // set the video state in local storage
         localStorage.setItem('currentTime', video.currentTime.toString())
+        localStorage.setItem('src', video.src)
       }
     }
   }, [])
@@ -129,8 +137,8 @@ export const VideoPlayer = () => {
     await RPC.call('getCurrentTime', {}, RPC.Mode.HOST).then(newTime => {
       console.log('newTime', newTime)
       video.currentTime = newTime
+      setVideoState({ ...videoState, currentTime: video.currentTime })
     })
-    setVideoState({ ...videoState, currentTime: video.currentTime })
   }
 
   useEffect(() => {

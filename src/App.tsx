@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import Lobby from './Lobby'
 // import { AvatarCreator } from '@readyplayerme/react-avatar-creator'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { insertCoin, myPlayer } from 'playroomkit'
 import { generateRandomHexColor, getStoreValue } from './utils/helpers'
 import OpenMapExperience from './components/OpenMapExperience'
@@ -17,17 +17,19 @@ export default function App() {
   const [gameLaunched, setGameLaunched] = useState(false)
   const [experienceReady, setExperienceReady] = useState(false)
   const [coinInserted, setCoinInserted] = useState(false)
-
+  // const
   useEffect(() => {
     // console.log('avatarMode', avatarMode)
     // console.log('gameLaunched', gameLaunched)
   }, [avatarMode, gameLaunched])
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     return () => {
       setExperienceReady(true)
       setGameLaunched(true)
       setAvatarMode(false)
+      // document.removeEventListener('mousemove', event => get_xy(event))
     }
   }, [])
 
@@ -72,7 +74,7 @@ export default function App() {
       <MantineProvider theme={theme}>
         <MenuProvider>
           <Loading show={!experienceReady} />
-          <Canvas shadows camera={{ position: [0, 1.55, 0], fov: 30, rotation: [0, 180, 0] }}>
+          <Canvas shadows camera={{ position: [0, 1.55, 0], fov: 30, rotation: [0, 180, 0] }} ref={canvasRef}>
             <XR>
               <color attach='background' args={['#fff']} />
               <OpenMapExperience onReady={setExperienceReady} />

@@ -35,6 +35,7 @@ export const setStoreValue = (key, value) => window.localStorage.setItem(key, va
 export const getStoreValue = key => window.localStorage.getItem(key)
 
 export const randomRange = (min, max) => Math.random() * (max - min) + min
+export const shortCodes = ['44v964', '2ly4wy', 'ks3tis', 'xu5lzl', 'kv1iqd', '1noafr', 'p7bysx']
 export const VIDEO_PLAYLIST = [
   {
     videoUrl:

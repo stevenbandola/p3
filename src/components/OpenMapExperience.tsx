@@ -1,19 +1,20 @@
 import { Physics, vec3 } from '@react-three/rapier'
-import { Environment, PointerLockControls } from '@react-three/drei'
+import { Environment } from '@react-three/drei'
 import { Fragment, Suspense, useEffect, useState } from 'react'
 import Lights from './Lights'
 import Map from './Map'
 import CharacterModel from './CharacterModel'
-import { usePlayersState } from 'playroomkit'
+import { myPlayer, usePlayersState } from 'playroomkit'
 import { AnimationRemotePlayer } from './AnimationRemotePlayer'
 import { animationSet } from '../hooks/useRPMAnimations'
 import { PlayroomJoystick } from './PlayroomJoystick'
 import { Player } from './Player'
 import { DesktopFlyController } from './DesktopFlyController'
-import { VideoPlayer } from './VideoPlayer'
+import { VideoPlayer } from './VideoPlayer/VideoPlayer'
 import TerrainGeneration from './TerrainGeneration'
 import Cliff from './Cliff'
-
+import { useThree } from '@react-three/fiber'
+import { PointerLockControls } from '../lib/PointerLockControls'
 /**
  * Keyboard control preset
  */
@@ -30,10 +31,10 @@ const keyboardMap = [
   { name: 'action4', keys: ['KeyF'] },
 ]
 
-export default function OpenMapExperience({ onReady }) {
+export default function OpenMapExperience({ onReady }: { onReady: (ready: boolean) => void }) {
   const [mapReady, setMapReady] = useState(false)
   const characters = usePlayersState('character')
-
+  const [player] = useState(myPlayer())
   useEffect(() => {
     onReady(mapReady)
   }, [mapReady])
@@ -46,24 +47,24 @@ export default function OpenMapExperience({ onReady }) {
 
       {mapReady && <VideoPlayer />}
 
-      <Physics timeStep='vary' debug={false} gravity={vec3({ x: 0, y: mapReady ? -9.8 : 0, z: 0 })}>
+      <Physics timeStep='vary' debug={false} gravity={[0, mapReady ? -9.8 : 0, 0]}>
         {characters
           .filter(({ state }) => state) // remove nulls
-          .map(({ state, player }) => {
-            return player.id === player.myId ? (
+          .map(({ state, player: p }) => {
+            return player.id === p.id ? (
               // controlled player
               <Fragment key={`local-${state.id}`}>
                 <PointerLockControls />
                 <DesktopFlyController />
                 <Player />
-                <PlayroomJoystick player={player} />
+                <PlayroomJoystick player={p} />
               </Fragment>
             ) : (
               // remote player
               <Fragment key={`remote-${state.id}`}>
                 <Suspense>
-                  <AnimationRemotePlayer animationSet={animationSet} player={player} key={player.id}>
-                    <CharacterModel player={player} />
+                  <AnimationRemotePlayer animationSet={animationSet} player={p} key={p.id}>
+                    <CharacterModel player={p} initialPos={[0, 0, 0]} />
                   </AnimationRemotePlayer>
                 </Suspense>
               </Fragment>
