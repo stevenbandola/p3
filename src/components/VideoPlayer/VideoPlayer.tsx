@@ -1,9 +1,9 @@
-import { VIDEO_PLAYLIST } from '../../utils/helpers'
+import { getStoreValue, VIDEO_PLAYLIST, shortCodes } from '../../utils/helpers'
 import { useAspect } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Suspense, useEffect, useState } from 'react'
 import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Texture, Vector3 } from 'three'
-import { useMultiplayerState, isHost, RPC } from 'playroomkit'
+import { useMultiplayerState, isHost, RPC, myPlayer } from 'playroomkit'
 import { Button, Flex, Slider } from '@mantine/core'
 import { useMenuContext } from '../../lib/context/MenuContext'
 import { IStreamableVideo } from './types'
@@ -32,15 +32,24 @@ export const VideoPlayer = () => {
   const [listenersRegistered, setListenersRegistered] = useState(false)
   const [sources, setSources] = useState(VIDEO_PLAYLIST)
   // const [showControls, setShowControls] = useState(false)
-
-  const [videoState, setVideoState] = useMultiplayerState('videoState', { status: 'playing', currentTime: 0, currentSongIndex: 0 })
+  const [player] = useState(myPlayer())
+  const [videoState, setVideoState] = useMultiplayerState('videoState', {
+    status: 'playing',
+    currentTime: getStoreValue('currentTime') ?? 0,
+    media: {
+      src: getStoreValue('src') ?? 0,
+      title: getStoreValue('title') ?? '',
+      duration: Number(getStoreValue('duration')) ?? 0,
+      shortCode: getStoreValue('shortCode') ?? '',
+    },
+  })
   const { camera } = useThree()
   // const [playerState, setPlayerState] = usePlayerState(player, 'menu', { opened: false })
   const { open: openMenu, close: closeMenu, setMenuContent } = useMenuContext()
   const onLoadedData = () => {
     setIsVideoLoaded(true)
   }
-  const [currentSongIndex, setCurrentSongIndex] = useState(0)
+  const [currentShortCode, setCurrentShortCode] = useState('')
 
   const isHostPlayer = isHost()
   const [video] = useState(() => {
@@ -53,37 +62,48 @@ export const VideoPlayer = () => {
     vid.preload = 'metadata'
     vid.onloadeddata = onLoadedData
     vid.setAttribute('style', `opacity: ${isVideoLoaded ? 1 : 0} `)
-    vid.currentTime = 0
+    vid.currentTime = Number(getStoreValue('currentTime')) || 0
     return vid
   })
   if (!listenersRegistered) {
-    RPC.register('getCurrentTime', () => {
-      setVideoState({ ...videoState, currentTime: video.currentTime })
-      return new Promise(() => video.currentTime)
-    })
+    RPC.register('getCurrentTime', (playerId, sender) => video.currentTime)
     setListenersRegistered(true)
   }
   const fetchVideo = async (shortcode: string) => {
-    const response = await fetch(`https://api.streamable.com/videos/${shortcode}`)
+    // find index of video in playlist
+    const nextIndex = shortCodes.findIndex(sc => sc === shortcode) + 1
+    const nextShortCode = shortCodes[nextIndex] ?? shortCodes[0]
+    const response = await fetch(`https://api.streamable.com/videos/${nextShortCode}`)
     const data: IStreamableVideo = await response.json()
     console.log(data)
-    // setSources(data)
+    return {
+      src: data.files.mp4.url,
+      title: data.title,
+      duration: data.files.mp4.duration,
+      shortCode: nextShortCode,
+    }
   }
   useEffect(() => {
     camera.lookAt(new Vector3(2, 2, 0))
     // video.src = sources[currentSongIndex].videoUrl
-    video.src = sources[currentSongIndex].videoUrl
-    video.src = String(localStorage.getItem('src')) || sources[currentSongIndex].videoUrl
+
     // console.log(localStorage.getItem('muted'))
     video.muted = localStorage.getItem('muted') === 'true'
+
+    // video.src = String(localStorage.getItem('src')) || sources[currentSongIndex].videoUrl
     if (isHostPlayer) {
-      const currentTimeStorage = localStorage.getItem('currentTime')
-      video.currentTime = currentTimeStorage ? parseFloat(currentTimeStorage) : 0
-      // setVideoState({ status: 'paused', currentTime: currentTimeStorage ?? 0, currentSongIndex: currentSongIndex ?? 0 })
+      // const currentTimeStorage = localStorage.getItem('currentTime')
+      // video.currentTime = currentTimeStorage ? parseFloat(currentTimeStorage) : 0
+      // setVideoState({ ...videoState, currentMedia: {
+      //   src: video.src,
+      //   title: videoState.media.title,
+      //   duration: video.duration,
+      //   shortCode: videoState.media.shortCode,
+      // } })
+    } else {
     }
 
     // console.log('updating video state', videoState)
-    video.currentTime = videoState.currentTime
 
     syncTimeWithHost()
     // if (videoState.status === 'playing') {
@@ -101,7 +121,7 @@ export const VideoPlayer = () => {
     // return () => {}
 
     return () => {
-      video.play()
+      video.pause()
       localStorage.setItem('muted', video.muted.toString())
 
       if (isHostPlayer) {
@@ -114,37 +134,30 @@ export const VideoPlayer = () => {
     }
   }, [])
 
-  const nextSong = () => {
+  const nextMedia = async () => {
     setIsVideoLoaded(false)
     console.log('next song')
-    const newIndex = currentSongIndex + 1 >= sources.length ? 0 : currentSongIndex + 1
-    setCurrentSongIndex(newIndex)
-    video.currentTime = 0
-    console.log('current song index', currentSongIndex)
-    console.log('video src', sources[newIndex].videoUrl)
-    video.src = sources[newIndex].videoUrl
-    video.height = sources[newIndex].resolution.height
-    video.width = sources[newIndex].resolution.width
-    setVideoState({ status: 'playing', currentTime: 0, currentSongIndex: newIndex })
+    const newMedia = await fetchVideo(videoState.media.shortCode)
+    // video.currentTime = 0
+    // console.log('current song index', currentSongIndex)
+    // console.log('video src', sources[newIndex].videoUrl)
+    // video.src = sources[newIndex].videoUrl
+    // video.height = sources[newIndex].resolution.height
+    // video.width = sources[newIndex].resolution.width
+    setVideoState({ status: 'playing', currentTime: 0, media: newMedia })
     setIsVideoLoaded(true)
-    video.play()
+    // video.play()
   }
 
   const syncTimeWithHost = async () => {
     console.log('syncing time with host')
-    // console.log('newTime', await RPC.call('getCurrentTime', {}, RPC.Mode.HOST))
-    await RPC.call('getCurrentTime', {}, RPC.Mode.HOST).then(newTime => {
-      console.log('newTime', newTime)
-      video.currentTime = newTime
-      setVideoState({ ...videoState, currentTime: video.currentTime })
-    })
+    video.currentTime = await RPC.call('getCurrentTime', { playerId: player.id }, RPC.Mode.HOST)
   }
 
   useEffect(() => {
     console.log('updating video state', videoState)
-    if (sources[videoState.currentSongIndex] && sources[videoState.currentSongIndex].videoUrl !== video.src) {
-      video.src = sources[videoState.currentSongIndex].videoUrl
-    }
+
+    video.src = videoState.media.src
     video.currentTime = videoState.currentTime
 
     if (videoState.status === 'playing') {
@@ -211,7 +224,7 @@ export const VideoPlayer = () => {
               <Button
                 size='md'
                 onClick={() => {
-                  nextSong()
+                  nextMedia()
                   closeMenu()
                 }}
               >

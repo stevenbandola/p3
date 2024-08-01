@@ -1,6 +1,6 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useXR } from '@react-three/xr'
-import { myPlayer } from 'playroomkit'
+// import { myPlayer } from 'playroomkit'
 import { useState } from 'react'
 import { Vector3 } from 'three'
 

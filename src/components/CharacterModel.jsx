@@ -12,7 +12,8 @@ export default function CharacterModel({ characterUrl = '', sharePos = false, pl
   const [modelReady, setModelReady] = useState(false)
   const { player: xrPlayer } = useXR()
   const { camera } = useThree()
-  xrPlayer.position.set(...initialPos)
+  console.log('initialPos', initialPos)
+
   // -- For custom models --
   // const customModel = useGLTF(characterUrl)
   // const customClone = useMemo(() => {
@@ -27,6 +28,15 @@ export default function CharacterModel({ characterUrl = '', sharePos = false, pl
   const group = useRef()
   const worldPos = new Vector3()
   const worldQua = new Quaternion()
+
+  useEffect(() => {
+    console.log(xrPlayer.position, 'xrPlayer.position')
+    // const emptyPos = new Vector3({ x: 0, y: 0, z: 0 })
+    if (xrPlayer.position.x === 0 && xrPlayer.position.y === 0 && xrPlayer.position.z === 0) {
+      player.setState('position', initialPos)
+      xrPlayer.position.set(...initialPos)
+    }
+  }, [])
 
   // helpers
   let newPos
@@ -67,7 +77,7 @@ export default function CharacterModel({ characterUrl = '', sharePos = false, pl
   }, [thisModelInAvatarMode])
 
   return (
-    <group ref={group} name={`character-${player.id}`} dispose={null}>
+    <group position={[-1000, -1000, -1000]} ref={group} name={`character-${player.id}`} dispose={null}>
       {!sharePos && <PlayerName name={player.state.player_name} player={player} />}
       {!sharePos && <primitive object={defaultClone} />}
     </group>
