@@ -26,3 +26,23 @@ export interface Mp4 {
   size: number
   duration: number
 }
+
+export interface IVideoState {
+  src: string
+  title: string
+  status: string
+  shortCode: string
+  duration: number
+  currentTime: number
+}
+
+// {
+//   status: 'playing',
+//   currentTime: getStoreValue('currentTime') ?? 0,
+//   media: {
+//     src: getStoreValue('src') ?? 0,
+//     title: getStoreValue('title') ?? '',
+//     duration: Number(getStoreValue('duration')) ?? 0,
+//     shortCode: getStoreValue('shortCode') ?? '',
+//   },
+// }

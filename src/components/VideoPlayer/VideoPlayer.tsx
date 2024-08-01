@@ -2,7 +2,7 @@ import { getStoreValue, shortCodes } from '../../utils/helpers'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Suspense, useEffect, useState } from 'react'
 import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Texture, Vector3 } from 'three'
-import { useMultiplayerState, isHost, RPC } from 'playroomkit'
+import { useMultiplayerState, isHost, RPC, myPlayer } from 'playroomkit'
 import { Button, Flex, Slider } from '@mantine/core'
 import { useMenuContext } from '../../lib/context/MenuContext'
 import { IStreamableVideo } from './types'
@@ -27,7 +27,7 @@ import { IStreamableVideo } from './types'
 export const VideoPlayer = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [listenersRegistered, setListenersRegistered] = useState(false)
-  // const [player] = useState(myPlayer())
+  const [player] = useState(myPlayer())
   const [videoState, setVideoState] = useMultiplayerState('videoState', {
     status: 'playing',
     currentTime: getStoreValue('currentTime') ?? 0,
@@ -55,21 +55,26 @@ export const VideoPlayer = () => {
     vid.preload = 'metadata'
     vid.onloadeddata = onLoadedData
     vid.setAttribute('style', `opacity: ${isVideoLoaded ? 1 : 0} `)
-    vid.currentTime = 0
+    vid.currentTime = Number(getStoreValue('currentTime')) || 0
     return vid
   })
   if (!listenersRegistered) {
-    RPC.register('getCurrentTime', () => {
-      setVideoState({ ...videoState, currentTime: video.currentTime })
-      return new Promise(() => video.currentTime)
-    })
+    RPC.register('getCurrentTime', (playerId, sender) => video.currentTime)
     setListenersRegistered(true)
   }
   const fetchVideo = async (shortcode: string) => {
-    const response = await fetch(`https://api.streamable.com/videos/${shortcode}`)
+    // find index of video in playlist
+    const nextIndex = shortCodes.findIndex(sc => sc === shortcode) + 1
+    const nextShortCode = shortCodes[nextIndex] ?? shortCodes[0]
+    const response = await fetch(`https://api.streamable.com/videos/${nextShortCode}`)
     const data: IStreamableVideo = await response.json()
     console.log(data)
-    // setSources(data)
+    return {
+      src: data.files.mp4.url,
+      title: data.title,
+      duration: data.files.mp4.duration,
+      shortCode: nextShortCode,
+    }
   }
   useEffect(() => {
     camera.lookAt(new Vector3(2, 2, 0))
@@ -92,7 +97,7 @@ export const VideoPlayer = () => {
     syncTimeWithHost()
 
     return () => {
-      video.play()
+      video.pause()
       localStorage.setItem('muted', video.muted.toString())
 
       if (isHostPlayer) {
@@ -113,12 +118,7 @@ export const VideoPlayer = () => {
 
   const syncTimeWithHost = async () => {
     console.log('syncing time with host')
-    // console.log('newTime', await RPC.call('getCurrentTime', {}, RPC.Mode.HOST))
-    await RPC.call('getCurrentTime', {}, RPC.Mode.HOST).then(newTime => {
-      console.log('newTime', newTime)
-      video.currentTime = newTime
-      setVideoState({ ...videoState, currentTime: video.currentTime })
-    })
+    video.currentTime = await RPC.call('getCurrentTime', { playerId: player.id }, RPC.Mode.HOST)
   }
 
   useEffect(() => {
