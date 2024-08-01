@@ -65,7 +65,7 @@ export const UI = () => {
             <span>Podchurch</span>
           </div>
           <div className='text-xs mt-1 text-base max-md:text-xs'>
-            <span>Version 3.0</span>
+            <span>Version 3.1</span>
           </div>
         </div>
         <div className='cursor-pointer absolute bottom-0 left-1 text-center'>

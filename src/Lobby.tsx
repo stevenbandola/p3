@@ -9,7 +9,7 @@ function Lobby({ onJoinOrCreateRoom }: { onJoinOrCreateRoom: () => void }) {
   return (
     <div className='flex flex-col items-center justify-center h-screen bg-gray-100'>
       <div className='text-black text-4xl font-bold'>Podchurch</div>
-      <div className='text-black text-xl f '>Version 3</div>
+      <div className='text-black text-xl f '>Version 3.1</div>
 
       <div className='flex mt-20'>
         {/* <button
