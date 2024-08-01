@@ -64,7 +64,7 @@ export default function OpenMapExperience({ onReady }: { onReady: (ready: boolea
               <Fragment key={`remote-${state.id}`}>
                 <Suspense>
                   <AnimationRemotePlayer animationSet={animationSet} player={p} key={p.id}>
-                    <CharacterModel player={p} initialPos={[0, 0, 0]} />
+                    <CharacterModel player={p} initialPos={p.getState('position')} />
                   </AnimationRemotePlayer>
                 </Suspense>
               </Fragment>

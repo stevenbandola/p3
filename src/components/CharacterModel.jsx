@@ -12,7 +12,7 @@ export default function CharacterModel({ characterUrl = '', sharePos = false, pl
   const [modelReady, setModelReady] = useState(false)
   const { player: xrPlayer } = useXR()
   const { camera } = useThree()
-
+  xrPlayer.position.set(...initialPos)
   // -- For custom models --
   // const customModel = useGLTF(characterUrl)
   // const customClone = useMemo(() => {
@@ -32,6 +32,7 @@ export default function CharacterModel({ characterUrl = '', sharePos = false, pl
   let newPos
   let newRot
   useFrame(() => {
+    console.log()
     // local characgter saves pos and rot in player's state
     if (sharePos) {
       group.current.getWorldPosition(worldPos)
@@ -66,7 +67,7 @@ export default function CharacterModel({ characterUrl = '', sharePos = false, pl
   }, [thisModelInAvatarMode])
 
   return (
-    <group position={initialPos} ref={group} name={`character-${player.id}`} dispose={null}>
+    <group ref={group} name={`character-${player.id}`} dispose={null}>
       {!sharePos && <PlayerName name={player.state.player_name} player={player} />}
       {!sharePos && <primitive object={defaultClone} />}
     </group>

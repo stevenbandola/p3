@@ -1,13 +1,11 @@
 import { VIDEO_PLAYLIST } from '../../utils/helpers'
-import { Html, PointerLockControls, PointerLockControlsProps, useAspect } from '@react-three/drei'
+import { useAspect } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
-import { MutableRefObject, Suspense, useEffect, useState } from 'react'
-import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from 'three'
-import { useMultiplayerState, isHost, RPC, usePlayerState, myPlayer } from 'playroomkit'
-import { Button, Drawer, Flex, MantineProvider, Slider } from '@mantine/core'
-import { theme } from '../../lib/mantine/theme'
+import { Suspense, useEffect, useState } from 'react'
+import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Texture, Vector3 } from 'three'
+import { useMultiplayerState, isHost, RPC } from 'playroomkit'
+import { Button, Flex, Slider } from '@mantine/core'
 import { useMenuContext } from '../../lib/context/MenuContext'
-import { useXR } from '@react-three/xr'
 import { IStreamableVideo } from './types'
 
 /**
@@ -33,7 +31,7 @@ export const VideoPlayer = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [listenersRegistered, setListenersRegistered] = useState(false)
   const [sources, setSources] = useState(VIDEO_PLAYLIST)
-  const [showControls, setShowControls] = useState(false)
+  // const [showControls, setShowControls] = useState(false)
 
   const [videoState, setVideoState] = useMultiplayerState('videoState', { status: 'playing', currentTime: 0, currentSongIndex: 0 })
   const { camera } = useThree()
@@ -72,6 +70,7 @@ export const VideoPlayer = () => {
     // setSources(data)
   }
   useEffect(() => {
+    camera.lookAt(new Vector3(2, 2, 0))
     // video.src = sources[currentSongIndex].videoUrl
     video.src = sources[currentSongIndex].videoUrl
     video.src = String(localStorage.getItem('src')) || sources[currentSongIndex].videoUrl

@@ -8,13 +8,22 @@ import { randomRange } from '../utils/helpers'
 // import { PointerLockControls } from '@react-three/drei'
 
 const getRandomPos = () => {
-  const min = 0
-  const max = 10
+  const min = -20
+  const max = 20
   const x = randomRange(min, max)
   const z = randomRange(min, max)
-  const y = 10
-  return [x, y, z]
+  const y = randomRange(2, 4)
+  return [-50 + x, 2 + y, z]
 }
+// 0
+// :
+// -68.73304556073916
+// 1
+// :
+// 2.854079304612015
+// 2
+// :
+// 0.4976995442631551
 export const Player = () => {
   const [initialPos] = useState(getRandomPos())
   const [player] = useState(myPlayer())
