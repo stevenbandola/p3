@@ -1,5 +1,4 @@
-import { VIDEO_PLAYLIST } from '../../utils/helpers'
-import { useAspect } from '@react-three/drei'
+import { getStoreValue, shortCodes } from '../../utils/helpers'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Suspense, useEffect, useState } from 'react'
 import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Texture, Vector3 } from 'three'
@@ -26,21 +25,24 @@ import { IStreamableVideo } from './types'
  *
  */
 export const VideoPlayer = () => {
-  const size = useAspect(128, 72, 1)
-
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [listenersRegistered, setListenersRegistered] = useState(false)
-  const [sources, setSources] = useState(VIDEO_PLAYLIST)
-  // const [showControls, setShowControls] = useState(false)
-
-  const [videoState, setVideoState] = useMultiplayerState('videoState', { status: 'playing', currentTime: 0, currentSongIndex: 0 })
+  // const [player] = useState(myPlayer())
+  const [videoState, setVideoState] = useMultiplayerState('videoState', {
+    status: 'playing',
+    currentTime: getStoreValue('currentTime') ?? 0,
+    media: {
+      src: getStoreValue('src') ?? 0,
+      title: getStoreValue('title') ?? '',
+      duration: Number(getStoreValue('duration')) ?? 0,
+      shortCode: getStoreValue('shortCode') ?? '',
+    },
+  })
   const { camera } = useThree()
-  // const [playerState, setPlayerState] = usePlayerState(player, 'menu', { opened: false })
   const { open: openMenu, close: closeMenu, setMenuContent } = useMenuContext()
   const onLoadedData = () => {
     setIsVideoLoaded(true)
   }
-  const [currentSongIndex, setCurrentSongIndex] = useState(0)
 
   const isHostPlayer = isHost()
   const [video] = useState(() => {
@@ -71,34 +73,23 @@ export const VideoPlayer = () => {
   }
   useEffect(() => {
     camera.lookAt(new Vector3(2, 2, 0))
-    // video.src = sources[currentSongIndex].videoUrl
-    video.src = sources[currentSongIndex].videoUrl
-    video.src = String(localStorage.getItem('src')) || sources[currentSongIndex].videoUrl
-    // console.log(localStorage.getItem('muted'))
     video.muted = localStorage.getItem('muted') === 'true'
+
     if (isHostPlayer) {
       const currentTimeStorage = localStorage.getItem('currentTime')
       video.currentTime = currentTimeStorage ? parseFloat(currentTimeStorage) : 0
-      // setVideoState({ status: 'paused', currentTime: currentTimeStorage ?? 0, currentSongIndex: currentSongIndex ?? 0 })
+      setVideoState({
+        ...videoState,
+        currentMedia: {
+          src: video.src,
+          title: videoState.media.title,
+          duration: video.duration,
+          shortCode: videoState.media.shortCode,
+        },
+      })
     }
 
-    // console.log('updating video state', videoState)
-    video.currentTime = videoState.currentTime
-
     syncTimeWithHost()
-    // if (videoState.status === 'playing') {
-    //   video.play()
-    // } else {
-    //   video.pause()
-    // }
-    // const handleResize = () => {
-    //   camera.updateProjectionMatrix()
-    // }
-
-    // window.addEventListener('resize', handleResize)
-
-    // Cleanup the event listener on component unmount
-    // return () => {}
 
     return () => {
       video.play()
@@ -106,28 +97,18 @@ export const VideoPlayer = () => {
 
       if (isHostPlayer) {
         setVideoState({ ...videoState, status: 'playing', currentTime: video.currentTime })
-        // window.removeEventListener('resize', handleResize)
-        // set the video state in local storage
         localStorage.setItem('currentTime', video.currentTime.toString())
         localStorage.setItem('src', video.src)
       }
     }
   }, [])
 
-  const nextSong = () => {
+  const nextMedia = async () => {
     setIsVideoLoaded(false)
     console.log('next song')
-    const newIndex = currentSongIndex + 1 >= sources.length ? 0 : currentSongIndex + 1
-    setCurrentSongIndex(newIndex)
-    video.currentTime = 0
-    console.log('current song index', currentSongIndex)
-    console.log('video src', sources[newIndex].videoUrl)
-    video.src = sources[newIndex].videoUrl
-    video.height = sources[newIndex].resolution.height
-    video.width = sources[newIndex].resolution.width
-    setVideoState({ status: 'playing', currentTime: 0, currentSongIndex: newIndex })
+    const newMedia = await fetchVideo(videoState.media.shortCode)
+    setVideoState({ status: 'playing', currentTime: 0, media: newMedia })
     setIsVideoLoaded(true)
-    video.play()
   }
 
   const syncTimeWithHost = async () => {
@@ -142,10 +123,13 @@ export const VideoPlayer = () => {
 
   useEffect(() => {
     console.log('updating video state', videoState)
-    if (sources[videoState.currentSongIndex] && sources[videoState.currentSongIndex].videoUrl !== video.src) {
-      video.src = sources[videoState.currentSongIndex].videoUrl
-    }
+
     video.currentTime = videoState.currentTime
+    if (videoState.media.src !== video.src) {
+      video.src = videoState.media.src
+      // video.load()
+      video.play()
+    }
 
     if (videoState.status === 'playing') {
       video.play()
@@ -165,7 +149,6 @@ export const VideoPlayer = () => {
 
         break
       case 2:
-        // console.log('right click')
         setMenuContent(
           <Flex gap={5} direction={'column'}>
             {isHostPlayer && (
@@ -173,7 +156,6 @@ export const VideoPlayer = () => {
                 size={'md'}
                 onClick={() => {
                   video.paused ? video.play() : video.pause()
-                  // isHostPlayer
                   setVideoState({ ...videoState, currentTime: video.currentTime, status: video.paused ? 'paused' : 'playing' })
                   closeMenu()
                 }}
@@ -211,7 +193,7 @@ export const VideoPlayer = () => {
               <Button
                 size='md'
                 onClick={() => {
-                  nextSong()
+                  nextMedia()
                   closeMenu()
                 }}
               >
@@ -244,8 +226,11 @@ export const VideoPlayer = () => {
   movieScreen.rotateY(-Math.PI / 2)
 
   useFrame(({ gl, scene }) => {
+    if (video.currentTime >= video.duration - 0.5 && isVideoLoaded) {
+      setIsVideoLoaded(false)
+      nextMedia()
+    }
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
-      // console.log(size)
       videoImageContext.drawImage(video, 0, 0)
       if (videoTexture) videoTexture.needsUpdate = true
     }
