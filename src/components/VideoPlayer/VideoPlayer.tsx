@@ -257,6 +257,12 @@ export const VideoPlayer = () => {
   movieScreen.rotateY(-Math.PI / 2)
 
   useFrame(({ gl, scene }) => {
+    // console.log('video.duration', video.duration)
+    if (video.currentTime >= video.duration - 0.5 && isVideoLoaded) {
+      setIsVideoLoaded(false)
+      nextMedia()
+      // console.log('video ended')
+    }
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
       // console.log(size)
       videoImageContext.drawImage(video, 0, 0)
