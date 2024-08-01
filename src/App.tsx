@@ -10,7 +10,7 @@ import { Loading } from './components/UI/Loading'
 import { XR } from '@react-three/xr'
 import { MantineProvider } from '@mantine/core'
 import { theme } from './lib/mantine/theme'
-import { MenuProvider } from './MenuProvider'
+import { MenuProvider } from './lib/context/MenuContext'
 
 export default function App() {
   const [avatarMode, setAvatarMode] = useState(false)

@@ -6,7 +6,7 @@ import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Textu
 import { useMultiplayerState, isHost, RPC, usePlayerState, myPlayer } from 'playroomkit'
 import { Button, Drawer, Flex, MantineProvider, Slider } from '@mantine/core'
 import { theme } from '../lib/mantine/theme'
-import { useMenuContext } from '../MenuProvider'
+import { useMenuContext } from '../lib/context/MenuContext'
 import { useXR } from '@react-three/xr'
 
 /**
@@ -33,7 +33,8 @@ export const VideoPlayer = () => {
   const [listenersRegistered, setListenersRegistered] = useState(false)
   const [sources, setSources] = useState(VIDEO_PLAYLIST)
   const [showControls, setShowControls] = useState(false)
-  const [videoState, setVideoState] = useMultiplayerState('videoState', { status: 'paused', currentTime: 0, currentSongIndex: 0 })
+
+  const [videoState, setVideoState] = useMultiplayerState('videoState', { status: 'playing', currentTime: 0, currentSongIndex: 0 })
   const { camera } = useThree()
   // const [playerState, setPlayerState] = usePlayerState(player, 'menu', { opened: false })
   const { open: openMenu, close: closeMenu, setMenuContent } = useMenuContext()
@@ -129,7 +130,7 @@ export const VideoPlayer = () => {
       console.log('newTime', newTime)
       video.currentTime = newTime
     })
-    // setVideoState({ ...videoState, currentTime: newTime })
+    setVideoState({ ...videoState, currentTime: video.currentTime })
   }
 
   useEffect(() => {

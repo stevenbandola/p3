@@ -10,6 +10,7 @@ export const PlayroomJoystick = ({ player }) => {
   // const resetJoystick = useJoystickControls(state => state.resetJoystick)
   // const pressButton1 = useJoystickControls(state => state.pressButton1)
   // const releaseAllButtons = useJoystickControls(state => state.releaseAllButtons)
+  // const movementJoystick = useRef()
   const joystick = useRef()
 
   useEffect(() => {
@@ -20,11 +21,15 @@ export const PlayroomJoystick = ({ player }) => {
         { id: 'sprint', icon: sprintButtonImage },
       ],
     })
+    // movementJoystick.current = new Joystick(player, {
+    //   type: 'dpad',
+    // })
     // append joystick & buttons div elements into #joystick element, this way
     // we can control visibility via #joystick
     const joystickContainer = window.document.querySelector('#joystick')
     joystickContainer.style.display = 'inherits'
     joystickContainer.appendChild(joystick.current.joystick.$element)
+    // joystickContainer.appendChild(movementJoystick.current.joystick.$element)
 
     Object.keys(joystick.current.buttons).forEach(btnKey => {
       const button = joystick.current.buttons[btnKey]
@@ -36,20 +41,60 @@ export const PlayroomJoystick = ({ player }) => {
     })
   }, [player])
 
-  // useFrame(() => {
-  //   if (!joystick.current) return
+  useFrame(() => {
+    if (!joystick.current) return
 
-  //   if (joystick.current.isPressed('jump')) {
-  //     pressButton1()
-  //   } else {
-  //     releaseAllButtons()
-  //   }
-  //   if (joystick.current.isJoystickPressed()) {
-  //     setJoystick(1, joystick.current.angle() - Math.PI / 2, joystick.current.isPressed('sprint'))
-  //   } else {
-  //     resetJoystick()
-  //   }
-  // })
+    // if (joystick.current.isPressed('jump')) {
+    //   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }))
+    // } else {
+    //   // releaseAllButtons()
+    //   document.dispatchEvent(new KeyboardEvent('keyup', { key: 'w' }))
+    // }
+    if (joystick.current.isJoystickPressed()) {
+      // if joystick is pressed, use the angle to determine which keyboard events should be triggered
+      const angle = joystick.current.angle()
+      // console.log(joystick.current)
+      // console.log(joystick.current.angle() - Math.PI / 2)
+      // console.log(angle)
+      // if angle is upwards
+      if (angle > Math.PI / 2) {
+        console.log('upwards')
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }))
+      } else {
+        console.log('not upwards')
+        document.dispatchEvent(new KeyboardEvent('keyup', { key: 'w' }))
+      }
+      // // if angle is downwards
+      // if (angle > (3 * Math.PI) / 4) {
+      //   document.dispatchEvent(new KeyboardEvent('keydown', { key: 's' }))
+      // } else {
+      //   document.dispatchEvent(new KeyboardEvent('keyup', { key: 's' }))
+      // }
+
+      // // if angle is leftwards
+      // if (angle > Math.PI / 4 && angle < (3 * Math.PI) / 4) {
+      //   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }))
+      // } else {
+      //   document.dispatchEvent(new KeyboardEvent('keyup', { key: 'a' }))
+      // }
+
+      // // if angle is rightwards
+      // if (angle < Math.PI / 4 || angle > (7 * Math.PI) / 4) {
+      //   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'd' }))
+      // } else {
+      //   document.dispatchEvent(new KeyboardEvent('keyup', { key: 'd' }))
+      // }
+
+      // console.log(joystick.current.angle() - Math.PI / 2)
+      // setJoystick(1, joystick.current.angle() - Math.PI / 2, joystick.current.isPressed('sprint'))
+    } else {
+      // resetJoystick()
+      document.dispatchEvent(new KeyboardEvent('keyup', { key: 'w' }))
+      document.dispatchEvent(new KeyboardEvent('keyup', { key: 'a' }))
+      document.dispatchEvent(new KeyboardEvent('keyup', { key: 's' }))
+      document.dispatchEvent(new KeyboardEvent('keyup', { key: 'd' }))
+    }
+  })
 
   return <></>
 }

@@ -28,7 +28,8 @@ export const DesktopFlyController = () => {
 
   const handleKeyDown = (e: { key: string }) => {
     const keyList = ['w', 'd', 's', 'a', ' ', 'Shift', 'x', 'e', 'q']
-
+    if (!keyList.includes(e.key)) return
+    console.log('keyPressed', keyPressed)
     if (keyList.includes(e.key)) {
       if (!keyPressed[e.key]) {
         keyPressed[e.key] = new Date().getTime()
