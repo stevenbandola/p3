@@ -14,7 +14,8 @@ import { VideoPlayer } from './VideoPlayer/VideoPlayer'
 import TerrainGeneration from './TerrainGeneration'
 import Cliff from './Cliff'
 import { useThree } from '@react-three/fiber'
-import { PointerLockControls } from '../lib/PointerLockControls'
+import { PointerLockControls } from '../lib/PointerLockControls/PointerLockControls'
+import { getRandomPos, randomRange } from '../utils/helpers'
 /**
  * Keyboard control preset
  */
@@ -64,7 +65,7 @@ export default function OpenMapExperience({ onReady }: { onReady: (ready: boolea
               <Fragment key={`remote-${state.id}`}>
                 <Suspense>
                   <AnimationRemotePlayer animationSet={animationSet} player={p} key={p.id}>
-                    <CharacterModel player={p} initialPos={p.getState('position')} />
+                    <CharacterModel player={p} initialPos={getRandomPos()} />
                   </AnimationRemotePlayer>
                 </Suspense>
               </Fragment>
