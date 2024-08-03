@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { generateRandomGuestName, getHashValue, getStoreValue, setHashValue, setStoreValue } from './utils/helpers'
 import { Button, Input, Flex } from '@mantine/core'
+import { DonationButton } from './components/UI/DonationButton'
 
 function Lobby({ onJoinOrCreateRoom }: { onJoinOrCreateRoom: () => void }) {
   // const [screen, setScreen] = useState(getHashValue('r') ? 'NAME' : 'LOBBY')
@@ -35,7 +36,7 @@ function Lobby({ onJoinOrCreateRoom }: { onJoinOrCreateRoom: () => void }) {
       </div>
 
       <div className='absolute bottom-5 text-xs gap-2 flex items-center'>
-        <Button>Donate</Button>
+        <DonationButton />
       </div>
     </div>
   )

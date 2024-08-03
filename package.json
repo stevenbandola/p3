@@ -30,15 +30,15 @@
     "playroomkit": "0.0.78",
     "react": ">=18",
     "react-dom": "18.2.0",
-    "three": ">=0.133"
+    "three": "0.161.0"
   },
   "devDependencies": {
     "@gltf-transform/core": "^3.5.1",
     "@gltf-transform/extensions": "^3.5.1",
     "@types/node": "^20.14.10",
-    "@types/react": ">=18",
+    "@types/react": "18.2.56",
     "@types/react-dom": "18.2.0",
-    "@types/three": ">=0.133",
+    "@types/three": "0.161.0",
     "@vitejs/plugin-react": "^4.1.0",
     "autoprefixer": "^10.4.16",
     "buffer": "^6.0.3",

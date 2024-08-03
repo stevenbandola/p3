@@ -16,6 +16,7 @@ import Cliff from './Cliff'
 import { useThree } from '@react-three/fiber'
 import { PointerLockControls } from '../lib/PointerLockControls/PointerLockControls'
 import { getRandomPos, randomRange } from '../utils/helpers'
+import { SkySphere } from './SkySphere'
 /**
  * Keyboard control preset
  */
@@ -42,7 +43,8 @@ export default function OpenMapExperience({ onReady }: { onReady: (ready: boolea
 
   return (
     <>
-      <Environment background files='/AmbienceExposure4k.hdr' />
+      {/* <Environment background files='/AmbienceExposure4k.hdr' /> */}
+      <SkySphere />
 
       <Lights />
 
