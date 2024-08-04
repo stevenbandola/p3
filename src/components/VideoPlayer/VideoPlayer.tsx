@@ -59,7 +59,7 @@ export const VideoPlayer = () => {
     return vid
   })
   if (!listenersRegistered) {
-    RPC.register('getCurrentTime', (playerId, sender) => video.currentTime)
+    RPC.register('getCurrentTime', async () => video.currentTime)
     setListenersRegistered(true)
   }
   const fetchVideo = async (shortcode: string) => {
@@ -113,9 +113,15 @@ export const VideoPlayer = () => {
     console.log('next song')
     const newMedia = await fetchVideo(videoState.media.shortCode)
     setVideoState({ status: 'playing', currentTime: 0, media: newMedia })
+    saveToLocalStorage()
     setIsVideoLoaded(true)
   }
-
+  const saveToLocalStorage = () => {
+    localStorage.setItem('currentTime', video.currentTime.toString())
+    localStorage.setItem('muted', video.muted.toString())
+    localStorage.setItem('src', video.src)
+    localStorage.setItem('shortCode', videoState.media.shortCode)
+  }
   const syncTimeWithHost = async () => {
     console.log('syncing time with host')
     video.currentTime = await RPC.call('getCurrentTime', { playerId: player.id }, RPC.Mode.HOST)
@@ -127,7 +133,7 @@ export const VideoPlayer = () => {
     video.currentTime = videoState.currentTime
     if (videoState.media.src !== video.src) {
       video.src = videoState.media.src
-      // video.load()
+      saveToLocalStorage()
       video.play()
     }
 
@@ -241,8 +247,8 @@ export const VideoPlayer = () => {
   return (
     <>
       <Suspense fallback={<></>}>
-        <mesh position={[15, 8, 0]} onClick={onClick}>
-          <primitive object={movieScreen} scale={[1.4766977716204095, 0.8306424965364804, 1]}></primitive>
+        <mesh position={[15, 10, 0]} onClick={onClick}>
+          <primitive object={movieScreen} scale={[1.4766977716204095 * 3.5 * 5, 0.8306424965364804 * 3.5 * 5, 1]}></primitive>
         </mesh>
       </Suspense>
     </>
