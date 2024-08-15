@@ -45,7 +45,21 @@ export const getRandomPos = () => {
   return [-50 + x, 2 + y, z]
 }
 
-export const shortCodes = ['xu5lzl', '44v964', 'suao61', 'ks3tis', 'kv1iqd', '1noafr', 'p7bysx']
+export const shortCodes = [
+  'snthep',
+  'b0zvj4',
+  '342o3h',
+  'tfs4t6',
+  'q0c1sd',
+  'ks3tis',
+  'ue5ais',
+  'xu5lzl',
+  '44v964',
+  'suao61',
+  'kv1iqd',
+  '1noafr',
+  'p7bysx',
+]
 export const VIDEO_PLAYLIST = [
   {
     videoUrl:

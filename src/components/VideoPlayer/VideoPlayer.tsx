@@ -247,8 +247,8 @@ export const VideoPlayer = () => {
   return (
     <>
       <Suspense fallback={<></>}>
-        <mesh position={[15, 10, 0]} onClick={onClick}>
-          <primitive object={movieScreen} scale={[1.4766977716204095 * 3.5 * 2.5, 0.8306424965364804 * 3.5 * 2.5, 1]}></primitive>
+        <mesh position={[35, 15, 0]} onClick={onClick}>
+          <primitive object={movieScreen} scale={[1.4766977716204095 * 4, 0.8306424965364804 * 4, 1]}></primitive>
         </mesh>
       </Suspense>
     </>
