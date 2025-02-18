@@ -1,5 +1,4 @@
-import { Physics, vec3 } from '@react-three/rapier'
-import { Environment } from '@react-three/drei'
+import { Physics } from '@react-three/rapier'
 import { Fragment, Suspense, useEffect, useState } from 'react'
 import Lights from './Lights'
 import Map from './Map'
@@ -7,15 +6,13 @@ import CharacterModel from './CharacterModel'
 import { myPlayer, usePlayersState } from 'playroomkit'
 import { AnimationRemotePlayer } from './AnimationRemotePlayer'
 import { animationSet } from '../hooks/useRPMAnimations'
-import { PlayroomJoystick } from './PlayroomJoystick'
 import { Player } from './Player'
 import { DesktopFlyController } from './DesktopFlyController'
 import { VideoPlayer } from './VideoPlayer/VideoPlayer'
 import TerrainGeneration from './TerrainGeneration'
 import Cliff from './Cliff'
-import { useThree } from '@react-three/fiber'
 import { PointerLockControls } from '../lib/PointerLockControls/PointerLockControls'
-import { getRandomPos, randomRange } from '../utils/helpers'
+import { getRandomPos } from '../utils/helpers'
 import { SkySphere } from './SkySphere'
 /**
  * Keyboard control preset
@@ -60,7 +57,6 @@ export default function OpenMapExperience({ onReady }: { onReady: (ready: boolea
                 <PointerLockControls />
                 <DesktopFlyController />
                 <Player />
-                <PlayroomJoystick player={p} />
               </Fragment>
             ) : (
               // remote player
